@@ -1,0 +1,17 @@
+{
+    "patient": {
+        "name": "Aarti (Live Preview)",
+        "age": "16 Years",
+        "gender": "Female"
+    },
+    "reportId": "PREVIEW-1564",
+    "registrationDate": "Oct 10, 2025 09:22 PM",
+    "reportDate": "Oct 10, 2025 09:22 PM",
+    "tests": [
+        { "name": "Haemoglobin", "result": "12.0", "range": "12 - 15", "unit": "g/dL" },
+        { "name": "Total Leucocyte Count", "result": "7400", "range": "4000 - 10000", "unit": "/cmm" },
+        { "name": "Neutrophils", "result": "65", "range": "40 - 80", "unit": "%" },
+        { "name": "Eosinophils", "result": "02", "range": "1 - 6", "unit": "%" }
+    ],
+    "doctorName": "Dr. Rohan Biswas"
+}
