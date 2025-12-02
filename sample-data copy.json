@@ -2,7 +2,8 @@
     "patient": {
         "name": "Aarti (Live Preview)",
         "age": "16 Years",
-        "gender": "Female"
+        "gender": "Female",
+        "patientId": "P-1564"
     },
     "reportId": "PREVIEW-1564",
     "registrationDate": "Oct 10, 2025 09:22 PM",

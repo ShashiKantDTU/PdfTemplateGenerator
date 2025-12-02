@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon dev-server.js",
     "generate": "node generate-pdf.js",
+    "generate:bill1": "node generate-pdf.js bill1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

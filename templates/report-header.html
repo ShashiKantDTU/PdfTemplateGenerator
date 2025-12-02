@@ -1,0 +1,109 @@
+<style>
+    /* Container fills the 100px margin.top */
+    .header-container {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100px; 
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        color: #000;
+        margin-top: 156px;
+        margin-right: 10mm;
+        margin-left: 10mm;
+        padding: 0;
+    }
+    
+    /* Outer border */
+    .header-border {
+        border: 1px solid #000;
+        width: 100%;
+        height: 100%;
+        padding: 8px 12px;
+        box-sizing: border-box;
+        margin: 0;
+        
+        /* 3-column layout using CSS Grid */
+        display: grid;
+        grid-template-columns: 2fr 2fr 1fr; 
+        gap: 10px;
+    }
+    
+    .info-column {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .qr-column {
+        text-align: right;
+    }
+    
+    /* Grid layout for aligned colons */
+    .info-row {
+        font-size: 13px;
+        display: grid;
+        grid-template-columns: 110px 5px 1fr; /* Label | : | Value */
+        line-height: 1.5;
+    }
+/*     
+    .info-row .label {
+        font-weight: bold;
+    } */
+    
+    .qr-code {
+        width: 60px;
+        height: 60px;
+    }
+</style>
+
+<div class="header-container">
+    <div class="header-border">
+        
+        <div class="info-column">
+            <div class="info-row">
+                <span class="label">Name</span>
+                <span class="separator">:</span>
+                <span class="value">{{patientName}}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Age/Gender</span>
+                <span class="separator">:</span>
+                <span class="value">{{ageGender}}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Referred By</span>
+                <span class="separator">:</span>
+                <span class="value">{{referredBy}}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Patient ID</span>
+                <span class="separator">:</span>
+                <span class="value">{{patientId}}</span>
+            </div>
+        </div>
+        
+        <div class="info-column">
+            <div class="info-row">
+                <span class="label">Report ID</span>
+                <span class="separator">:</span>
+                <span class="value">{{reportId}}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Report Date</span>
+                <span class="separator">:</span>
+                <span class="value">{{reportDate}}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Registration Date</span>
+                <span class="separator">:</span>
+                <span class="value">{{regDate}}</span>
+            </div>
+        </div>
+        
+        <div class="qr-column">
+            {{#if qrCodeData}}
+            <img src="{{qrCodeData}}" class="qr-code">
+            {{/if}}
+        </div>
+        
+    </div>
+</div>

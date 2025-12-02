@@ -3,6 +3,7 @@ node_modules/
 
 # Generated PDFs
 *.pdf
+output/
 
 # Logs
 logs

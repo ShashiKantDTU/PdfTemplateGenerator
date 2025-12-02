@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>PDF Template</title>
+    <style>
+        /* A4 Page Setup for PDF */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        html, body {
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #000;
+            /* padding: 20mm; */
+            line-height: 1.4;
+        }
+        
+        /* Add your custom styles here */
+
+        .MainContainer {
+            width: 100%;
+            height: 100%;
+            padding: 15mm;
+        }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .invoice-title {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 32pt;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: #333;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        
+        .company-name {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14pt;
+            font-weight: 600;
+            margin: 20px 0 5px 0;
+            color: #1a1a1a;
+        }
+        
+        .company-address {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            font-weight: 400;
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Invoice Details Section */
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+        
+        .billed-to, .invoice-info {
+            width: 48%;
+        }
+        
+        .section-label {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 8pt;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .customer-name {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            color: #1a1a1a;
+        }
+        
+        .customer-details {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .invoice-meta {
+            text-align: right;
+        }
+        
+        .invoice-meta-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+        }
+        
+        .invoice-meta-label {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 15px;
+            min-width: 80px;
+            text-align: right;
+        }
+        
+        .invoice-meta-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+        }
+        
+        .items-table thead {
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .items-table th {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 8pt;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 8px;
+            text-align: left;
+        }
+        
+        .items-table th.right {
+            text-align: right;
+        }
+        
+        .items-table td {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #333;
+            padding: 15px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .items-table td.right {
+            text-align: right;
+        }
+        
+        .items-table .item-description {
+            color: #666;
+        }
+        
+        .items-table .item-price {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 400;
+        }
+        
+        /* Totals Section */
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .totals-table {
+            width: 300px;
+        }
+        
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .totals-label {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .totals-value {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: right;
+        }
+        
+        .totals-row.total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .totals-row.total .totals-label {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .totals-row.total .totals-value {
+            font-size: 11pt;
+        }
+        
+        /* Payment Details */
+        .payment-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .payment-status {
+            display: inline-block;
+            padding: 6px 15px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 9pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 3px;
+        }
+        
+        .payment-status.due {
+            background-color: #ff9800;
+        }
+        
+        h1 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 18pt;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+        
+        h2 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            font-weight: 400;
+            margin: 0 0 6px 0;
+            color: #333;
+        }
+        
+        h3 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12pt;
+            font-weight: 600;
+            margin: 12px 0 6px 0;
+            color: #1a1a1a;
+        }
+        
+        p {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            margin: 4px 0;
+            color: #000;
+        }
+        
+        table {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            font-weight: 600;
+            text-align: left;
+            color: #1a1a1a;
+        }
+        
+        td {
+            font-weight: 400;
+            color: #000;
+        }
+        
+        .invoice-number, .amount {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Start designing your template here -->
+    <div class="MainContainer">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="invoice-title">INVOICE</h1>
+        </div>
+        
+        <!-- Company & Patient Details -->
+        <div class="invoice-details">
+            <!-- Billed To -->
+            <div class="billed-to">
+                <div class="section-label">Issued To:</div>
+                <p class="customer-name">{{patientSnapshot.fullName}}</p>
+                <p class="customer-details">
+                    {{patientSnapshot.phone}}<br>
+                    {{#if patientSnapshot.address}}{{patientSnapshot.address}}<br>{{/if}}
+                    Age: {{patientSnapshot.age}} {{patientSnapshot.ageType}}<br>
+                    Gender: {{patientSnapshot.gender}}<br>
+                    Referring Doctor: {{patientSnapshot.referringDoctor}}
+                </p>
+                
+                <div class="section-label" style="margin-top: 20px;">Pay To:</div>
+                <p class="customer-name">{{LaboratoryName}}</p>
+                <p class="customer-details">{{LaboratoryAddress}}</p>
+            </div>
+            
+            <!-- Invoice Info -->
+            <div class="invoice-info">
+                <div class="invoice-meta">
+                    <div class="invoice-meta-row">
+                        <span class="invoice-meta-label">Invoice No:</span>
+                        <span class="invoice-meta-value">{{billNumber}}</span>
+                    </div>
+                    <div class="invoice-meta-row">
+                        <span class="invoice-meta-label">Date:</span>
+                        <span class="invoice-meta-value" id="currentDate"></span>
+                    </div>
+                    <div class="invoice-meta-row">
+                        <span class="invoice-meta-label">Due Date:</span>
+                        <span class="invoice-meta-value" id="dueDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="right">Unit Price</th>
+                    <th class="right">Qty</th>
+                    <th class="right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each items}}
+                <tr>
+                    <td>
+                        <div class="item-description">
+                            <strong>{{this.name}}</strong><br>
+                            <small style="color: #999;">{{this.category}} - {{this.code}}</small>
+                        </div>
+                    </td>
+                    <td class="right item-price">₹{{this.originalPrice}}</td>
+                    <td class="right">1</td>
+                    <td class="right item-price">₹{{this.netPrice}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        
+        <!-- Totals -->
+        <div class="totals-section">
+            <div class="totals-table">
+                <div class="totals-row">
+                    <span class="totals-label">Subtotal</span>
+                    <span class="totals-value">₹{{financials.subtotal}}</span>
+                </div>
+                {{#if financials.totalDiscount}}
+                <div class="totals-row">
+                    <span class="totals-label">Discount</span>
+                    <span class="totals-value">-₹{{financials.totalDiscount}}</span>
+                </div>
+                {{/if}}
+                {{#if financials.urgentCharges}}
+                <div class="totals-row">
+                    <span class="totals-label">Urgent Charges</span>
+                    <span class="totals-value">₹{{financials.urgentCharges}}</span>
+                </div>
+                {{/if}}
+                {{#if financials.otherChargesTotal}}
+                <div class="totals-row">
+                    <span class="totals-label">Other Charges</span>
+                    <span class="totals-value">₹{{financials.otherChargesTotal}}</span>
+                </div>
+                {{/if}}
+                <div class="totals-row total">
+                    <span class="totals-label">Total</span>
+                    <span class="totals-value">₹{{financials.totalPayable}}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Status -->
+        <div class="payment-section">
+            <span class="payment-status {{#if payments.dueAmount}}due{{/if}}">
+                {{payments.paymentStatus}}
+            </span>
+            {{#if payments.dueAmount}}
+            <span style="margin-left: 15px; font-size: 10pt; color: #666;">
+                Due Amount: <strong>₹{{payments.dueAmount}}</strong>
+            </span>
+            {{/if}}
+        </div>
+    </div>
+    
+    <script>
+        // Add your JavaScript code here
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PDF Template loaded successfully');
+            
+            // Format current date
+            const currentDate = new Date();
+            const formattedDate = formatDate(currentDate);
+            
+            // Calculate due date (immediate for medical bills)
+            const dueDate = new Date(currentDate);
+            const formattedDueDate = formatDate(dueDate);
+            
+            // Update dates in the document
+            const currentDateElement = document.getElementById('currentDate');
+            const dueDateElement = document.getElementById('dueDate');
+            
+            if (currentDateElement) {
+                currentDateElement.textContent = formattedDate;
+            }
+            
+            if (dueDateElement) {
+                dueDateElement.textContent = formattedDueDate;
+            }
+            
+        });
+        
+        // Date formatting function (DD.MM.YYYY)
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{
+    "billNumber": "251101002",
+    "LaboratoryName": "City Health Labs",
+    "LaboratoryAddress": "E-2/37, Main Road 4th Pusta Sonia vihar Delhi-110094",
+    "patient": {
+        "_id": "68ec0c069491c2a059663b13",
+        "phone": "9354739451",
+        "designation": "Mr",
+        "firstName": "Sunny",
+        "lastName": "Poddar",
+        "age": 22,
+        "ageType": "years",
+        "gender": "male",
+        "allergies": [],
+        "medicalHistory": [],
+        "referringDoctor": "Dr. Ramesh Kumar",
+        "rateList": "General",
+        "totalVisits": 4,
+        "lastVisit": "2025-11-01T08:19:16.230Z",
+        "totalAmountSpent": 1100,
+        "outstandingAmount": 0,
+        "isActive": true,
+        "createdBy": "68eb95e19c4e065c413ecef8",
+        "createdAt": "2025-10-12T20:13:58.507Z",
+        "updatedAt": "2025-11-01T08:19:16.231Z",
+        "fullName": "Mr Sunny Poddar",
+        "__v": 0,
+        "updatedBy": "68eb95e19c4e065c413ecef8",
+        "ageInYears": 22,
+        "id": "68ec0c069491c2a059663b13"
+    },
+    "patientSnapshot": {
+        "designation": "Mr",
+        "firstName": "Sunny",
+        "lastName": "Poddar",
+        "fullName": "Mr Sunny Poddar",
+        "age": 22,
+        "ageType": "years",
+        "gender": "male",
+        "phone": "9354739451",
+        "address": "",
+        "referringDoctor": "Dr. Ramesh Kumar",
+        "rateList": "General"
+    },
+    "items": [
+        {
+            "id": "68ec0964cda4fac97189f33b",
+            "test_catalog": "68ec0964cda4fac97189f33b",
+            "test_template": "68ec09350ac15ca9f0503c97",
+            "code": "CBC",
+            "name": "Complete Blood Count (CBC)",
+            "category": "Hematology",
+            "isPackage": false,
+            "originalPrice": 300,
+            "discount": 0,
+            "discountPercent": 0,
+            "netPrice": 300,
+            "tests": [],
+            "status": "pending",
+            "result": null,
+            "_id": "6905c284cbac2b8881502018"
+        }
+    ],
+    "financials": {
+        "itemsTotal": 300,
+        "itemsDiscountTotal": 0,
+        "subtotal": 300,
+        "globalDiscount": 0,
+        "totalAfterDiscount": 300,
+        "urgentCharges": 0,
+        "otherChargesTotal": 0,
+        "totalPayable": 300,
+        "totalDiscount": 0
+    },
+    "payments": {
+        "modes": {
+            "cash": {
+                "enabled": true,
+                "amount": 300,
+                "_id": "6905c284cbac2b8881502019"
+            },
+            "upi": {
+                "enabled": false,
+                "amount": 0,
+                "transactionId": null,
+                "_id": "6905c284cbac2b888150201a"
+            },
+            "card": {
+                "enabled": false,
+                "amount": 0,
+                "transactionId": null,
+                "_id": "6905c284cbac2b888150201b"
+            },
+            "cheque": {
+                "enabled": false,
+                "amount": 0,
+                "chequeNumber": null,
+                "bankName": null,
+                "chequeDate": null,
+                "_id": "6905c284cbac2b888150201c"
+            }
+        },
+        "totalPaid": 300,
+        "dueAmount": 0,
+        "allowDuePayment": false,
+        "paymentStatus": "PAID"
+    }
+}
