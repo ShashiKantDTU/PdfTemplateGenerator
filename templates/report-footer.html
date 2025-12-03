@@ -1,71 +1,90 @@
 <style>
-    .MainContainer {
+    /* 
+     * IMPORTANT: Puppeteer footer is anchored to BOTTOM of page by default.
+     * We need height:100% to fill the margin area, then use flexbox to 
+     * position content at the TOP of that area.
+     */
+    .footer-wrapper {
+        box-sizing: border-box;
         width: 100%;
-        height: 140px;
+        height: 100%;              /* Fill entire footer margin area */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; /* Push content to TOP of footer area */
+        align-items: stretch;
+        padding: 0 10mm;
+        padding-top: 9mm;          /* Gap between body content and footer */
+        position: relative;
+        z-index: 1;  /* Above the background from header */
+    }
+    
+    /* Footer content container - only takes height it needs */
+    .footer-container {
+        box-sizing: border-box;
+        width: 100%;
         display: flex;
         flex-direction: row;
-        box-sizing: border-box;
         justify-content: space-between;
-        border: 1px solid red;
+        align-items: flex-start;   /* Align items to top */
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 10px;
+        color: #000;
+        flex-shrink: 0;            /* Don't shrink - keep natural height */
     }
+    
     .doctorSign {
-        width: 100%;
-        height: 100%;
-        border: 1px solid blue;
         display: flex;
         flex-direction: column;
         align-items: center;
         box-sizing: border-box;
         justify-content: flex-start;
     }
+    
     .sign {
-        width: 80%;
-        height: 50px;
-        border: 1px solid green;
+        width: 130px;
+        height: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
-    .doctorDetails {
-        height: 100%;
+    
+    .sign img {
         width: 100%;
-        padding-top: 4px;
-        margin-top: 4px;
-        font-size: 21px;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    .doctorDetails {
+        padding-top: 2px;
         text-align: center;
-        border: 1px solid orange;
+    }
+    
+    .doctorName {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    .doctorQualification {
+        font-size: 10px;
     }
 </style>
 
-<div class="MainContainer" >
-    <div class="doctorSign">
-        <div class="sign">
-            <img src="{{doctor1Sign}}" alt="Doctor 1 Sign" style="max-width: 100%; max-height: 100%;">
+<div class="footer-wrapper">
+    <div class="footer-container">
+        {{#each doctors}}
+        {{#if this.hasSignature}}
+        <div class="doctorSign">
+            <div class="sign">
+                <img src="{{this.signatureBase64}}" alt="">
+            </div>
+            <div class="doctorDetails">
+                <span class="doctorName">{{this.name}}</span>
+                {{#if this.qualification}}<br><span class="doctorQualification">{{this.qualification}}</span>{{/if}}
+                {{#if this.registrationNumber}}<br><span class="doctorQualification">Reg: {{this.registrationNumber}}</span>{{/if}}
+            </div>
         </div>
-        <div class="doctorDetails">
-            <strong>{{doctor1Name}}</strong>
-        </div>
+        {{/if}}
+        {{/each}}
     </div>
-    <div class="doctorSign">
-        <div class="sign">
-            <img src="{{doctor2Sign}}" alt="Doctor 2 Sign" style="max-width: 100%; max-height: 100%;">
-        </div>
-    </div>
-    <div class="doctorSign">
-        <div class="sign">
-            <img src="{{doctor3Sign}}" alt="Doctor 3 Sign" style="max-width: 100%; max-height: 100%;">
-        </div>
-    </div>
-    <div class="doctorSign">
-        <div class="sign">
-            <img src="{{doctor4Sign}}" alt="Doctor 4 Sign" style="max-width: 100%; max-height: 100%;">
-        </div>
-    </div>
-    <div class="doctorSign">
-        <div class="sign">
-            <img src="{{doctor5Sign}}" alt="Doctor 5 Sign" style="max-width: 100%; max-height: 100%;">
-        </div>
-    </div>
-    
-
 </div>

@@ -5,7 +5,7 @@ const path = require('path');
 const livereload = require('livereload');
 const connectLiveReload = require('connect-livereload');
 
-// Helper function to convert image to base64 data URI
+// Helper function to convert local image to base64 data URI
 const imageToBase64 = (imagePath) => {
     try {
         if (fs.existsSync(imagePath)) {
@@ -18,6 +18,31 @@ const imageToBase64 = (imagePath) => {
         console.warn(`Could not load image: ${imagePath}`);
     }
     return '';
+};
+
+// Helper function to fetch URL and convert to base64 data URI
+const urlToBase64 = async (url) => {
+    try {
+        if (!url) return '';
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.warn(`Failed to fetch image: ${url}`);
+            return '';
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        
+        // Determine MIME type from URL or response
+        const contentType = response.headers.get('content-type') || 'image/png';
+        const mimeType = contentType.split(';')[0].trim();
+        
+        return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    } catch (e) {
+        console.warn(`Could not fetch image from URL: ${url}`, e.message);
+        return '';
+    }
 };
 
 // Register Handlebars helpers
@@ -181,7 +206,7 @@ app.get('/', (req, res) => {
 });
 
 // Template route - render specific template
-app.get('/:templateName', (req, res) => {
+app.get('/:templateName', async (req, res) => {
     try {
         const templateName = req.params.templateName;
         
@@ -204,6 +229,30 @@ app.get('/:templateName', (req, res) => {
             const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
             const templateHtml = fs.readFileSync(templatePath, 'utf8');
             
+            // Convert background URL to base64 if present
+            let backgroundBase64 = '';
+            if (data.reportSettings?.hasBackground && data.reportSettings?.backgroundUrl) {
+                console.log(`🖼️  Converting background image to base64...`);
+                backgroundBase64 = await urlToBase64(data.reportSettings.backgroundUrl);
+                console.log(`   - Background: ${backgroundBase64 ? 'OK' : 'FAILED'}`);
+            }
+            
+            // Convert doctor signature URLs to base64
+            console.log(`🖼️  Converting doctor signatures to base64...`);
+            const doctorsWithBase64 = await Promise.all(
+                (data.doctors || []).map(async (doctor) => {
+                    if (doctor.hasSignature && doctor.signatureUrl) {
+                        const base64Signature = await urlToBase64(doctor.signatureUrl);
+                        console.log(`   - ${doctor.name}: ${base64Signature ? 'OK' : 'FAILED'}`);
+                        return {
+                            ...doctor,
+                            signatureBase64: base64Signature
+                        };
+                    }
+                    return { ...doctor, signatureBase64: '' };
+                })
+            );
+            
             // Prepare data for header/footer templates (same as in generate-pdf.js)
             const headerFooterData = {
                 patientName: data.patient?.fullName || '',
@@ -214,22 +263,10 @@ app.get('/:templateName', (req, res) => {
                 reportDate: `${data.dates?.reportDate || ''} ${data.dates?.reportTime || ''}`,
                 regDate: data.dates?.collectionDate || '',
                 qrCodeData: data.report?.barcode || '',
-                // Doctor signatures - convert to base64 for preview
-                doctor1Sign: imageToBase64(path.resolve('./templates/signatures/Doctor1.png')),
-                doctor2Sign: imageToBase64(path.resolve('./templates/signatures/Doctor2.png')),
-                doctor3Sign: imageToBase64(path.resolve('./templates/signatures/Doctor3.png')),
-                doctor4Sign: imageToBase64(path.resolve('./templates/signatures/Doctor4.png')),
-                doctor5Sign: imageToBase64(path.resolve('./templates/signatures/Doctor5.png')),
-                doctor1Name: data.doctors?.doctor1?.name || 'Doctor 1',
-                doctor2Name: data.doctors?.doctor2?.name || 'Doctor 2',
-                doctor3Name: data.doctors?.doctor3?.name || 'Doctor 3',
-                doctor4Name: data.doctors?.doctor4?.name || 'Doctor 4',
-                doctor5Name: data.doctors?.doctor5?.name || 'Doctor 5',
-                doctor1Designation: data.doctors?.doctor1?.designation || '',
-                doctor2Designation: data.doctors?.doctor2?.designation || '',
-                doctor3Designation: data.doctors?.doctor3?.designation || '',
-                doctor4Designation: data.doctors?.doctor4?.designation || '',
-                doctor5Designation: data.doctors?.doctor5?.designation || ''
+                // Pass the doctors array with base64 signatures
+                doctors: doctorsWithBase64,
+                // Pass background for full-page letterhead
+                backgroundBase64: backgroundBase64
             };
             
             const template = handlebars.compile(templateHtml);
@@ -253,6 +290,43 @@ app.get('/:templateName', (req, res) => {
         
         const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
+
+        // Process ending line - convert newlines to <br> for HTML rendering
+        if (data.reportSettings?.endingLine) {
+            let endingLineHtml = data.reportSettings.endingLine
+                .replace(/\n/g, '<br>');
+            data.reportSettings.endingLineHtml = endingLineHtml;
+        }
+
+        // Convert background URL to base64 if present
+        if (data.reportSettings?.hasBackground && data.reportSettings?.backgroundUrl) {
+            console.log(`🖼️  Converting background image to base64...`);
+            const backgroundBase64 = await urlToBase64(data.reportSettings.backgroundUrl);
+            if (backgroundBase64) {
+                data.reportSettings.backgroundBase64 = backgroundBase64;
+                console.log(`   - Background: OK`);
+            } else {
+                console.log(`   - Background: FAILED`);
+            }
+        }
+
+        // Convert doctor signature URLs to base64
+        if (data.doctors && Array.isArray(data.doctors)) {
+            console.log(`🖼️  Converting doctor signatures to base64...`);
+            data.doctors = await Promise.all(
+                data.doctors.map(async (doctor) => {
+                    if (doctor.hasSignature && doctor.signatureUrl) {
+                        const base64Signature = await urlToBase64(doctor.signatureUrl);
+                        console.log(`   - ${doctor.name}: ${base64Signature ? 'OK' : 'FAILED'}`);
+                        return {
+                            ...doctor,
+                            signatureBase64: base64Signature
+                        };
+                    }
+                    return { ...doctor, signatureBase64: '' };
+                })
+            );
+        }
 
         const template = handlebars.compile(templateHtml);
         const finalHtml = template(data);

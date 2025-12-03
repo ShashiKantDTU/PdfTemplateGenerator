@@ -31,6 +31,26 @@
       "hasSignature": true
     },
     {
+      "name": "Doc 2",
+      "qualification": "BDMS",
+      "registrationNumber": "",
+      "signatureUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/signatures/68eb95e19c4e065c413ecef8_doctor1_1764691206686.png",
+      "departments": [
+        "All Departments"
+      ],
+      "hasSignature": true
+    },
+    {
+      "name": "Doc 2",
+      "qualification": "BDMS",
+      "registrationNumber": "",
+      "signatureUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/signatures/68eb95e19c4e065c413ecef8_doctor1_1764691206686.png",
+      "departments": [
+        "All Departments"
+      ],
+      "hasSignature": true
+    },
+    {
       "name": "Doc 3",
       "qualification": "MD Pathology",
       "registrationNumber": "",
@@ -43,11 +63,11 @@
   ],
   "reportSettings": {
     "backgroundUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/backgrounds/68eb95e19c4e065c413ecef8_1764690188157.jpeg",
-    "headerHeight": 120,
+    "headerHeight": 80,
     "footerHeight": 60,
     "patientDesignLayout": "layout1",
     "endingLine": "Kindly correlate clinically\n~~End of report~~",
-    "endingLineFontSize": 10,
+    "endingLineFontSize": 16,
     "hasBackground": true
   },
   "billSettings": {

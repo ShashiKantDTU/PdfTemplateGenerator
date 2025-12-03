@@ -46,7 +46,7 @@ handlebars.registerHelper('hasNonHtmlFields', function(fields, options) {
     }
 });
 
-// Helper function to convert image to base64 data URI
+// Helper function to convert local image to base64 data URI
 const imageToBase64 = (imagePath) => {
     try {
         if (fs.existsSync(imagePath)) {
@@ -59,6 +59,31 @@ const imageToBase64 = (imagePath) => {
         console.warn(`Could not load image: ${imagePath}`);
     }
     return '';
+};
+
+// Helper function to fetch URL and convert to base64 data URI
+const urlToBase64 = async (url) => {
+    try {
+        if (!url) return '';
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.warn(`Failed to fetch image: ${url}`);
+            return '';
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        
+        // Determine MIME type from URL or response
+        const contentType = response.headers.get('content-type') || 'image/png';
+        const mimeType = contentType.split(';')[0].trim();
+        
+        return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    } catch (e) {
+        console.warn(`Could not fetch image from URL: ${url}`, e.message);
+        return '';
+    }
 };
 
 const generatePdf = async (templateName) => {
@@ -80,6 +105,26 @@ const generatePdf = async (templateName) => {
         const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
 
+        // Process ending line - convert newlines to <br> for HTML rendering
+        // Must be done BEFORE template compilation
+        if (data.reportSettings?.endingLine) {
+            let endingLineHtml = data.reportSettings.endingLine
+                .replace(/\n/g, '<br>');                         // Convert newlines to <br>
+            data.reportSettings.endingLineHtml = endingLineHtml;
+        }
+
+        // Convert background URL to base64 if present
+        if (data.reportSettings?.hasBackground && data.reportSettings?.backgroundUrl) {
+            console.log(`🖼️  Converting background image to base64...`);
+            const backgroundBase64 = await urlToBase64(data.reportSettings.backgroundUrl);
+            if (backgroundBase64) {
+                data.reportSettings.backgroundBase64 = backgroundBase64;
+                console.log(`   - Background: OK (${backgroundBase64.length} chars)`);
+            } else {
+                console.log(`   - Background: FAILED`);
+            }
+        }
+
         const template = handlebars.compile(templateHtml);
         const finalHtml = template(data);
 
@@ -87,6 +132,43 @@ const generatePdf = async (templateName) => {
         const page = await browser.newPage();
 
         await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
+
+        // --- DYNAMIC MARGIN CALCULATION ---
+        // User only needs to set TWO values:
+        // headerHeight = Total top margin (letterhead space + patient box will fit inside)
+        // footerHeight = Footer space for signatures
+        // 
+        // The patient box automatically positions at the BOTTOM of headerHeight
+        // using CSS flexbox (justify-content: flex-end)
+        
+        const headerHeight = data.reportSettings?.headerHeight || 120;  // Total top margin (mm)
+        const footerHeight = data.reportSettings?.footerHeight || 60;   // Footer space (mm)
+
+        // --- INJECT BACKGROUND IMAGE ---
+        // Inject background as CSS background-image on html element
+        // This ensures the background covers the full page and repeats on each page
+        if (data.reportSettings?.backgroundBase64) {
+            console.log(`🖼️  Injecting background image into page...`);
+            await page.evaluate((bgBase64, hHeight, fHeight) => {
+                // Create a style element to set background on html
+                const style = document.createElement('style');
+                style.textContent = `
+                    html {
+                        background-image: url('${bgBase64}');
+                        background-size: 210mm 297mm;
+                        background-position: center top;
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                        margin: -${hHeight}mm -10mm -${fHeight}mm -10mm;
+                        padding: ${hHeight}mm 10mm ${fHeight}mm 10mm;
+                    }
+                `;
+                document.head.appendChild(style);
+            }, data.reportSettings.backgroundBase64, headerHeight, footerHeight);
+            console.log(`   - Background injected successfully`);
+        }
 
         // --- LOAD HEADER AND FOOTER TEMPLATES ---
         
@@ -96,6 +178,28 @@ const generatePdf = async (templateName) => {
         
         const headerTemplateHtml = fs.readFileSync(headerTemplatePath, 'utf8');
         const footerTemplateHtml = fs.readFileSync(footerTemplatePath, 'utf8');
+        
+        console.log(`📐 Layout Settings:`);
+        console.log(`   - Header Height (top margin): ${headerHeight}mm`);
+        console.log(`   - Footer Height: ${footerHeight}mm`);
+        console.log(`   - Patient box auto-positioned at bottom of header using flexbox`);
+        
+        // Convert doctor signature URLs to base64 (required for Puppeteer header/footer)
+        console.log(`🖼️  Converting doctor signatures to base64...`);
+        const doctorsWithBase64 = await Promise.all(
+            (data.doctors || []).map(async (doctor) => {
+                if (doctor.hasSignature && doctor.signatureUrl) {
+                    const base64Signature = await urlToBase64(doctor.signatureUrl);
+                    console.log(`   - ${doctor.name}: ${base64Signature ? 'OK (' + base64Signature.length + ' chars)' : 'FAILED'}`);
+                    return {
+                        ...doctor,
+                        signatureBase64: base64Signature
+                    };
+                }
+                return { ...doctor, signatureBase64: '' };
+            })
+        );
+        console.log(`   - Converted ${doctorsWithBase64.filter(d => d.signatureBase64).length} signatures`);
         
         // Prepare data for header/footer templates
         const headerFooterData = {
@@ -107,17 +211,10 @@ const generatePdf = async (templateName) => {
             reportDate: `${data.dates?.reportDate || ''} ${data.dates?.reportTime || ''}`,
             regDate: data.dates?.collectionDate || '',
             qrCodeData: data.report?.barcode || '',
-            // Doctor signatures - convert to base64 for Puppeteer header/footer
-            doctor1Sign: imageToBase64(path.resolve('./templates/signatures/Doctor1.png')),
-            doctor2Sign: imageToBase64(path.resolve('./templates/signatures/Doctor2.png')),
-            doctor3Sign: imageToBase64(path.resolve('./templates/signatures/Doctor3.png')),
-            doctor4Sign: imageToBase64(path.resolve('./templates/signatures/Doctor4.png')),
-            doctor5Sign: imageToBase64(path.resolve('./templates/signatures/Doctor5.png')),
-            doctor1Name: data.doctors?.doctor1?.name || '',
-            doctor2Name: data.doctors?.doctor2?.name || '',
-            doctor3Name: data.doctors?.doctor3?.name || '',
-            doctor4Name: data.doctors?.doctor4?.name || '',
-            doctor5Name: data.doctors?.doctor5?.name || ''
+            // Pass the doctors array with base64 signatures
+            doctors: doctorsWithBase64,
+            // Pass background for full-page letterhead
+            backgroundBase64: data.reportSettings?.backgroundBase64 || ''
         };
         
         // Compile header and footer templates with Handlebars
@@ -142,8 +239,8 @@ const generatePdf = async (templateName) => {
             headerTemplate: headerTemplate,
             footerTemplate: footerTemplate,
             margin: {
-                top: '92.5mm',     // 31.116% of A4 height (297mm * 0.3116)
-                bottom: '140px',    // Space for footer
+                top: `${headerHeight}mm`,     // User-defined: includes letterhead + patient box space
+                bottom: `${footerHeight}mm`,  // User-defined: footer space
                 left: '10mm',
                 right: '10mm'
             }
