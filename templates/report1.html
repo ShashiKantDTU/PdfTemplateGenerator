@@ -3,42 +3,232 @@
 <head>
     <meta charset="utf-8" />
     <title>Medical Laboratory Report</title>
-    <!-- Google Fonts: Inter for professional medical reports -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
+        /* --- GLOBAL RESET FOR PDF --- */
+        * { 
+            box-sizing: border-box; 
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
-        
-        html, body {
-            margin: 0;
-            padding: 0;
-            overflow: visible;
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: auto; 
         }
         
+        /* --- FIXED REPEATING ELEMENTS (Visual Layers) --- */
+        
+        /* 1. The Background (Behind everything, z-index: -10) */
+        .visual-background {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 210mm; 
+            height: 297mm;
+            z-index: -10;
+            pointer-events: none;
+        }
+        .visual-background img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: fill; 
+        }
+
+        /* 2. The Visual Header Content (patient info box) */
+        .visual-header {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 210mm;
+            height: {{reportSettings.headerHeight}}mm;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 10mm 8mm 10mm;
+        }
+
+        /* 3. The Visual Footer Content (doctor signatures) */
+        .visual-footer {
+            position: fixed;
+            bottom: 0; 
+            left: 0;
+            width: 210mm;
+            height: {{reportSettings.footerHeight}}mm;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 9mm 10mm 0 10mm;
+        }
+
+        /* --- UNIVERSAL TABLE FIX --- */
+        /* This targets EVERY table, including the Master and the inner results */
+        table, .results-table {
+            /* FORCE separation. 'collapse' breaks headers on page 2 */
+            border-collapse: separate !important; 
+            border-spacing: 0 !important; 
+        }
+
+        /* Ensure the Master Table specifically is free to resize */
+        table.master-layout-table {
+            width: 100%;
+            border: none;
+            /* 'auto' allows the row height to be dictated strictly by the spacer content */
+            table-layout: auto !important; 
+        }
+
+        /* Ensure the spacer cell has no padding that confuses height calc */
+        table.master-layout-table th,
+        table.master-layout-table td {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Restore padding only for the content cell */
+        td.master-content-cell {
+            padding-left: 10mm !important;
+            padding-right: 10mm !important;
+            vertical-align: top;
+        }
+        
+        /* [IMPORTANT] Force header/footer to behave as groups */
+        table.master-layout-table thead { display: table-header-group; }
+        table.master-layout-table tfoot { display: table-footer-group; }
+        
+        /* The invisible spacers that force text down/up */
+        .ghost-header-spacer { 
+            height: {{reportSettings.headerHeight}}mm; 
+            display: block;
+            border: 1px solid transparent;
+            box-sizing: border-box;
+        }
+        .ghost-footer-spacer { height: {{reportSettings.footerHeight}}mm; }
+
+        /* [IMPORTANT] Allow the row to break */
+        .master-layout-table tr { 
+            page-break-inside: auto; 
+            page-break-after: auto;
+        }
+        
+        /* --- HEADER CONTENT STYLES --- */
+        .header-container {
+            box-sizing: border-box;
+            width: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 10px;
+            color: #000;
+        }
+        
+        .header-border {
+            border: 1px solid #000;
+            width: 100%;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr;
+            gap: 10px;
+        }
+        
+        .info-column {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .qr-column {
+            text-align: right;
+        }
+        
+        .info-row {
+            font-size: 13px;
+            display: grid;
+            grid-template-columns: 110px 5px 1fr;
+            line-height: 1.5;
+        }
+        
+        .qr-code {
+            width: 60px;
+            height: 60px;
+        }
+        
+        /* --- FOOTER CONTENT STYLES --- */
+        .footer-container {
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 10px;
+            color: #000;
+        }
+        
+        .doctorSign {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            justify-content: flex-start;
+        }
+        
+        .sign {
+            width: 130px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .sign img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .doctorDetails {
+            padding-top: 2px;
+            text-align: center;
+        }
+        
+        .doctorName {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .doctorQualification {
+            font-size: 10px;
+        }
+        
+        /* --- MAIN CONTENT STYLES --- */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 10pt;
             color: #000;
             line-height: 1.4;
-            position: relative;
             background: transparent;
         }
         
         .MainContainer {
             width: 100%;
-            position: relative;
-            z-index: 1;
+            /* position: relative; REMOVED - This causes the page jump! */
+            /* z-index: 1; REMOVED - Not needed in standard flow */
+            display: block;
+            /* Ensure no property prevents breaking */
+            overflow: visible;
         }
         
         /* Test Results Section */
         .test-section {
             margin-bottom: 30px;
-            page-break-inside: avoid;
+            break-inside: auto !important;
+            display: block !important;
+            page-break-inside: auto !important; /* FORCE IT TO SPLIT */
         }
         
         /* Department Header */
@@ -50,6 +240,7 @@
             margin-bottom: 3px;
             letter-spacing: 0.5px;
             padding-top: 0;
+            page-break-after: avoid; /* Keep header with content */
         }
         
         /* Test Name */
@@ -60,16 +251,26 @@
             text-transform: uppercase;
             margin-bottom: 8px;
             letter-spacing: 0.3px;
+            page-break-after: avoid; /* Keep test name with content */
         }
         
         /* Results Table */
         .results-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 9pt;
-            border-top: 2px solid #000;
-            border-bottom: 2px solid #000;
+    /* border-collapse: collapse;  <-- CHANGE THIS */
+    border-collapse: separate !important;   /* Allows breaking */
+    border-spacing: 0 !important;             /* Looks like collapse */
+    margin-bottom: 20px;
+    font-size: 9pt;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    page-break-inside: auto !important;       /* Explicitly allow breaking */
+        }
+
+        .results-table tr {
+            page-break-inside: auto !important;
+            break-inside: auto !important; 
+            page-break-after: auto !important;
         }
         
         .results-table thead {
@@ -131,7 +332,7 @@
         .indent-2 { padding-left: 45px !important; }
         .indent-3 { padding-left: 65px !important; }
         
-        /* Abnormal Value Styling - Bold red for entire row */
+        /* Abnormal Value Styling */
         .abnormal-row {
             font-weight: bold;
         }
@@ -151,7 +352,7 @@
         /* HTML Content Styling */
         .html-content {
             padding: 10px;
-            background-color: #fff;
+            background-color: transparent;
             border: 1px solid #000;
             margin-bottom: 10px;
         }
@@ -176,7 +377,7 @@
         }
         
         .no-page-break {
-            page-break-inside: avoid;
+            page-break-inside: auto !important; /* Override to allow splitting */
         }
         
         /* Ending Line */
@@ -187,176 +388,291 @@
             color: #333;
             font-style: italic;
             line-height: 1.6;
-            font-size: 10px;
         }
     </style>
     <style>
-        /* Dynamic font size for ending line - separate style block to avoid linter issues */
+        /* Dynamic font size for ending line */
         .ending-line { font-size: {{reportSettings.endingLineFontSize}}px; }
     </style>
 </head>
 <body>
-    <div class="MainContainer">
-        
-        <!-- Test Results -->
-        {{#each tests}}
-        <div class="test-section no-page-break">
-            <!-- Department/Category Header -->
-            <div class="department-header">{{this.category}}</div>
-            
-            <!-- Test Name -->
-            <div class="test-name">{{this.testName}}</div>
-            
-            {{#if (eq this.inputType 'text')}}
-            <!-- Text tests render content directly without table -->
-            {{#each this.fields}}
-                {{#if (eq this.type 'field')}}
-                    {{#if this.value}}
-                        {{{this.displayValue}}}
+
+    <!-- ========== VISUAL LAYER 1: BACKGROUND ========== -->
+    {{#if reportSettings.backgroundBase64}}
+    <div class="visual-background">
+        <img src="{{{reportSettings.backgroundBase64}}}" alt="" />
+    </div>
+    {{/if}}
+
+    <!-- ========== VISUAL LAYER 2: HEADER (Patient Info) ========== -->
+    <div class="visual-header">
+        <div class="header-container">
+            <div class="header-border">
+                <div class="info-column">
+                    <div class="info-row">
+                        <span class="label">Name</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{patient.fullName}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Age/Gender</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{patient.ageDisplay}} / {{patient.genderDisplay}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Referred By</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{patient.referringDoctor}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Patient ID</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{report.billNumber}}</span>
+                    </div>
+                </div>
+                
+                <div class="info-column">
+                    <div class="info-row">
+                        <span class="label">Report ID</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{report.reportNumber}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Report Date</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{dates.reportDate}} {{dates.reportTime}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Registration Date</span>
+                        <span class="separator">:</span>
+                        <span class="value">{{dates.collectionDate}}</span>
+                    </div>
+                </div>
+                
+                <div class="qr-column">
+                    {{#if report.barcode}}
+                    <img src="{{report.barcode}}" class="qr-code">
                     {{/if}}
-                {{/if}}
-            {{/each}}
-            {{else if (eq this.inputType 'select')}}
-            <!-- Select tests render content directly without table -->
-            {{#each this.fields}}
-                {{#if (eq this.type 'field')}}
-                    {{#if this.value}}
-                        {{{this.displayValue}}}
-                    {{/if}}
-                {{/if}}
-            {{/each}}
-            {{else}}
-            <!-- Default: Numeric tests use table format -->
-            <!-- First, render any HTML content fields outside the table -->
-            {{#each this.fields}}
-                {{#if (eq this.type 'field')}}
-                    {{#if this.value}}
-                        {{#if (contains this.displayValue '<table')}}
-                            {{{this.displayValue}}}
-                        {{/if}}
-                    {{/if}}
-                {{/if}}
-            {{/each}}
-            
-            <!-- Then render the numeric table with non-HTML fields (only if there are non-HTML fields) -->
-            {{#hasNonHtmlFields this.fields}}
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">Test Description</th>
-                        <th class="center" style="width: 15%;">Result</th>
-                        <th class="center" style="width: 10%;">Flag</th>
-                        <th class="center" style="width: 20%;">Ref. Range</th>
-                        <th class="center" style="width: 15%;">Unit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#each this.fields}}
-                        {{#if (eq this.type 'field')}}
-                            {{#if this.value}}
-                                {{#unless (contains this.displayValue '<table')}}
-                                    <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
-                                        <td>{{this.name}}</td>
-                                        <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                            {{this.value}}
-                                        </td>
-                                        <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                            {{#if this.isAbnormal}}
-                                                {{#if (eq this.abnormalType 'high')}}H{{/if}}
-                                                {{#if (eq this.abnormalType 'low')}}L{{/if}}
-                                            {{/if}}
-                                        </td>
-                                        <td class="center">{{this.referenceRange}}</td>
-                                        <td class="center">{{this.unit}}</td>
-                                    </tr>
-                                {{/unless}}
-                            {{/if}}
-                        {{else if (eq this.type 'group')}}
-                            <tr class="group-row">
-                                <td colspan="5">{{this.name}}</td>
-                            </tr>
-                            {{#each this.sub_fields}}
-                                {{#if (eq this.type 'field')}}
-                                    {{#if this.value}}
-                                        <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
-                                            <td class="indent-1">{{this.name}}</td>
-                                            <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                                {{this.value}}
-                                            </td>
-                                            <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                                {{#if this.isAbnormal}}
-                                                    {{#if (eq this.abnormalType 'high')}}H{{/if}}
-                                                    {{#if (eq this.abnormalType 'low')}}L{{/if}}
-                                                {{/if}}
-                                            </td>
-                                            <td class="center">{{this.referenceRange}}</td>
-                                            <td class="center">{{this.unit}}</td>
-                                        </tr>
-                                    {{/if}}
-                                {{else if (eq this.type 'group')}}
-                                    <tr class="group-row">
-                                        <td colspan="5" class="indent-1">{{this.name}}</td>
-                                    </tr>
-                                    {{#each this.sub_fields}}
-                                        {{#if this.value}}
-                                            <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
-                                                <td class="indent-2">{{this.name}}</td>
-                                                <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                                    {{this.value}}
-                                                </td>
-                                                <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
-                                                    {{#if this.isAbnormal}}
-                                                        {{#if (eq this.abnormalType 'high')}}H{{/if}}
-                                                        {{#if (eq this.abnormalType 'low')}}L{{/if}}
-                                                    {{/if}}
-                                                </td>
-                                                <td class="center">{{this.referenceRange}}</td>
-                                                <td class="center">{{this.unit}}</td>
-                                            </tr>
-                                        {{/if}}
-                                    {{/each}}
-                                {{/if}}
-                            {{/each}}
-                        {{/if}}
-                    {{/each}}
-                </tbody>
-            </table>
-            {{/hasNonHtmlFields}}
-            {{/if}}
-            
-            {{#if this.interpretation.text}}
-            <div class="html-content">
-                <strong>Interpretation:</strong>
-                <p>{{{this.interpretation.text}}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== VISUAL LAYER 3: FOOTER (Doctor Signatures) ========== -->
+    <div class="visual-footer">
+        <div class="footer-container">
+            {{#each doctors}}
+            {{#if this.hasSignature}}
+            <div class="doctorSign">
+                <div class="sign">
+                    <img src="{{{this.signatureBase64}}}" alt="">
+                </div>
+                <div class="doctorDetails">
+                    <span class="doctorName">{{this.name}}</span>
+                    {{#if this.qualification}}<br><span class="doctorQualification">{{this.qualification}}</span>{{/if}}
+                    {{#if this.registrationNumber}}<br><span class="doctorQualification">Reg: {{this.registrationNumber}}</span>{{/if}}
+                </div>
             </div>
             {{/if}}
+            {{/each}}
         </div>
-        {{/each}}
-        
-        <!-- Ending Line -->
-        {{#if reportSettings.endingLine}}
-        <div class="ending-line">
-            {{{reportSettings.endingLineHtml}}}
-        </div>
-        {{/if}}
-        
     </div>
-    
+
+    <!-- ========== MASTER LAYOUT TABLE (Ghost Table Strategy) ========== -->
+    <table class="master-layout-table">
+        
+        <!-- Ghost Header: Creates space for visual header on each page -->
+        <thead>
+            <tr>
+                <th style="height: {{reportSettings.headerHeight}}mm; min-height: {{reportSettings.headerHeight}}mm; border: none; padding: 0; margin: 0; vertical-align: top;">
+                    
+                    <div class="ghost-header-spacer" style="
+                        height: {{reportSettings.headerHeight}}mm; 
+                        display: block; 
+                        /* Border forces the layout engine to respect the box */
+                        border: 1px solid transparent; 
+                        box-sizing: border-box;
+                    ">
+                        <span style="visibility: hidden; font-size: 10pt;">.</span>
+                    </div>
+                    
+                </th>
+            </tr>
+        </thead>
+        
+        <!-- Ghost Footer: Creates space for visual footer on each page -->
+        <tfoot>
+            <tr><td><div class="ghost-footer-spacer"></div></td></tr>
+        </tfoot>
+
+        <!-- Main Content Area -->
+        <tbody>
+            <tr>
+                <td class="master-content-cell">
+                    
+                    <div class="MainContainer">
+                        
+                        <!-- Test Results -->
+                        {{#each tests}}
+                        <div class="test-section no-page-break">
+                            <!-- Department/Category Header -->
+                            <div class="department-header">{{this.category}}</div>
+                            
+                            <!-- Test Name -->
+                            <div class="test-name">{{this.testName}}</div>
+                            
+                            {{#if (eq this.inputType 'text')}}
+                            <!-- Text tests render content directly without table -->
+                            {{#each this.fields}}
+                                {{#if (eq this.type 'field')}}
+                                    {{#if this.value}}
+                                        {{{this.displayValue}}}
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                            {{else if (eq this.inputType 'select')}}
+                            <!-- Select tests render content directly without table -->
+                            {{#each this.fields}}
+                                {{#if (eq this.type 'field')}}
+                                    {{#if this.value}}
+                                        {{{this.displayValue}}}
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                            {{else}}
+                            <!-- Default: Numeric tests use table format -->
+                            <!-- First, render any HTML content fields outside the table -->
+                            {{#each this.fields}}
+                                {{#if (eq this.type 'field')}}
+                                    {{#if this.value}}
+                                        {{#if (contains this.displayValue '<table')}}
+                                            {{{this.displayValue}}}
+                                        {{/if}}
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                            
+                            <!-- Then render the numeric table with non-HTML fields -->
+                            {{#hasNonHtmlFields this.fields}}
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40%;">Test Description</th>
+                                        <th class="center" style="width: 15%;">Result</th>
+                                        <th class="center" style="width: 10%;">Flag</th>
+                                        <th class="center" style="width: 20%;">Ref. Range</th>
+                                        <th class="center" style="width: 15%;">Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each this.fields}}
+                                        {{#if (eq this.type 'field')}}
+                                            {{#if this.value}}
+                                                {{#unless (contains this.displayValue '<table')}}
+                                                    <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
+                                                        <td>{{this.name}}</td>
+                                                        <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                            {{this.value}}
+                                                        </td>
+                                                        <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                            {{#if this.isAbnormal}}
+                                                                {{#if (eq this.abnormalType 'high')}}H{{/if}}
+                                                                {{#if (eq this.abnormalType 'low')}}L{{/if}}
+                                                            {{/if}}
+                                                        </td>
+                                                        <td class="center">{{this.referenceRange}}</td>
+                                                        <td class="center">{{this.unit}}</td>
+                                                    </tr>
+                                                {{/unless}}
+                                            {{/if}}
+                                        {{else if (eq this.type 'group')}}
+                                            <tr class="group-row">
+                                                <td colspan="5">{{this.name}}</td>
+                                            </tr>
+                                            {{#each this.sub_fields}}
+                                                {{#if (eq this.type 'field')}}
+                                                    {{#if this.value}}
+                                                        <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
+                                                            <td class="indent-1">{{this.name}}</td>
+                                                            <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                                {{this.value}}
+                                                            </td>
+                                                            <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                                {{#if this.isAbnormal}}
+                                                                    {{#if (eq this.abnormalType 'high')}}H{{/if}}
+                                                                    {{#if (eq this.abnormalType 'low')}}L{{/if}}
+                                                                {{/if}}
+                                                            </td>
+                                                            <td class="center">{{this.referenceRange}}</td>
+                                                            <td class="center">{{this.unit}}</td>
+                                                        </tr>
+                                                    {{/if}}
+                                                {{else if (eq this.type 'group')}}
+                                                    <tr class="group-row">
+                                                        <td colspan="5" class="indent-1">{{this.name}}</td>
+                                                    </tr>
+                                                    {{#each this.sub_fields}}
+                                                        {{#if this.value}}
+                                                            <tr {{#if this.isAbnormal}}class="abnormal-row"{{/if}}>
+                                                                <td class="indent-2">{{this.name}}</td>
+                                                                <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                                    {{this.value}}
+                                                                </td>
+                                                                <td class="center {{#if (eq this.abnormalType 'low')}}abnormal-low{{else if (eq this.abnormalType 'high')}}abnormal-high{{else if this.isAbnormal}}abnormal{{/if}}">
+                                                                    {{#if this.isAbnormal}}
+                                                                        {{#if (eq this.abnormalType 'high')}}H{{/if}}
+                                                                        {{#if (eq this.abnormalType 'low')}}L{{/if}}
+                                                                    {{/if}}
+                                                                </td>
+                                                                <td class="center">{{this.referenceRange}}</td>
+                                                                <td class="center">{{this.unit}}</td>
+                                                            </tr>
+                                                        {{/if}}
+                                                    {{/each}}
+                                                {{/if}}
+                                            {{/each}}
+                                        {{/if}}
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                            {{/hasNonHtmlFields}}
+                            {{/if}}
+                            
+                            {{#if this.interpretation.text}}
+                            <div class="html-content">
+                                <strong>Interpretation:</strong>
+                                <p>{{{this.interpretation.text}}}</p>
+                            </div>
+                            {{/if}}
+                        </div>
+                        {{/each}}
+                        
+                        <!-- Ending Line -->
+                        {{#if reportSettings.endingLine}}
+                        <div class="ending-line">
+                            {{{reportSettings.endingLineHtml}}}
+                        </div>
+                        {{/if}}
+                        
+                    </div>
+                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
     <script>
-        // Register Handlebars helpers
+        // Register Handlebars helpers (for browser preview)
         if (typeof Handlebars !== 'undefined') {
-            // Equality check
             Handlebars.registerHelper('eq', function(a, b) {
                 return a === b;
             });
             
-            // Contains check (for HTML detection)
             Handlebars.registerHelper('contains', function(str, substr) {
                 if (!str) return false;
                 return str.includes(substr);
             });
             
-            // Unless helper (inverse of if)
             Handlebars.registerHelper('unless', function(conditional, options) {
                 if (!conditional) {
                     return options.fn(this);
@@ -365,20 +681,16 @@
                 }
             });
             
-            // Check if fields array has any non-HTML fields
             Handlebars.registerHelper('hasNonHtmlFields', function(fields, options) {
                 if (!fields || !Array.isArray(fields)) return options.inverse(this);
                 
-                // Recursively check for non-HTML fields
                 const hasNonHtml = (fieldsArray) => {
                     for (let field of fieldsArray) {
                         if (field.type === 'field' && field.value) {
-                            // If it's a field with value but no HTML table, return true
                             if (!field.displayValue || !field.displayValue.includes('<table')) {
                                 return true;
                             }
                         } else if (field.type === 'group' && field.sub_fields) {
-                            // Recursively check sub_fields
                             if (hasNonHtml(field.sub_fields)) {
                                 return true;
                             }

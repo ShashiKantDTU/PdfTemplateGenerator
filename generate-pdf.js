@@ -88,6 +88,7 @@ const urlToBase64 = async (url) => {
 
 const generatePdf = async (templateName) => {
     console.log(`Starting PDF generation for template: ${templateName}...`);
+    console.log(`📋 Using Ghost Table Strategy (no Puppeteer header/footer)`);
 
     try {
         const dataPath = path.resolve(`./data/${templateName}-data.json`);
@@ -105,13 +106,23 @@ const generatePdf = async (templateName) => {
         const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
 
+        // --- PROCESS DATA ---
+        
         // Process ending line - convert newlines to <br> for HTML rendering
-        // Must be done BEFORE template compilation
         if (data.reportSettings?.endingLine) {
             let endingLineHtml = data.reportSettings.endingLine
-                .replace(/\n/g, '<br>');                         // Convert newlines to <br>
+                .replace(/\n/g, '<br>');
             data.reportSettings.endingLineHtml = endingLineHtml;
         }
+
+        // Ensure headerHeight and footerHeight have defaults
+        data.reportSettings = data.reportSettings || {};
+        data.reportSettings.headerHeight = data.reportSettings.headerHeight || 80;
+        data.reportSettings.footerHeight = data.reportSettings.footerHeight || 60;
+
+        console.log(`📐 Layout Settings:`);
+        console.log(`   - Header Height: ${data.reportSettings.headerHeight}mm`);
+        console.log(`   - Footer Height: ${data.reportSettings.footerHeight}mm`);
 
         // Convert background URL to base64 if present
         if (data.reportSettings?.hasBackground && data.reportSettings?.backgroundUrl) {
@@ -125,104 +136,34 @@ const generatePdf = async (templateName) => {
             }
         }
 
+        // Convert doctor signature URLs to base64
+        console.log(`🖼️  Converting doctor signatures to base64...`);
+        if (data.doctors && Array.isArray(data.doctors)) {
+            data.doctors = await Promise.all(
+                data.doctors.map(async (doctor) => {
+                    if (doctor.hasSignature && doctor.signatureUrl) {
+                        const base64Signature = await urlToBase64(doctor.signatureUrl);
+                        console.log(`   - ${doctor.name}: ${base64Signature ? 'OK (' + base64Signature.length + ' chars)' : 'FAILED'}`);
+                        return {
+                            ...doctor,
+                            signatureBase64: base64Signature
+                        };
+                    }
+                    return { ...doctor, signatureBase64: '' };
+                })
+            );
+            console.log(`   - Converted ${data.doctors.filter(d => d.signatureBase64).length} signatures`);
+        }
+
+        // --- COMPILE TEMPLATE ---
         const template = handlebars.compile(templateHtml);
         const finalHtml = template(data);
 
+        // --- GENERATE PDF ---
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
-
-        // --- DYNAMIC MARGIN CALCULATION ---
-        // User only needs to set TWO values:
-        // headerHeight = Total top margin (letterhead space + patient box will fit inside)
-        // footerHeight = Footer space for signatures
-        // 
-        // The patient box automatically positions at the BOTTOM of headerHeight
-        // using CSS flexbox (justify-content: flex-end)
-        
-        const headerHeight = data.reportSettings?.headerHeight || 120;  // Total top margin (mm)
-        const footerHeight = data.reportSettings?.footerHeight || 60;   // Footer space (mm)
-
-        // --- INJECT BACKGROUND IMAGE ---
-        // Inject background as CSS background-image on html element
-        // This ensures the background covers the full page and repeats on each page
-        if (data.reportSettings?.backgroundBase64) {
-            console.log(`🖼️  Injecting background image into page...`);
-            await page.evaluate((bgBase64, hHeight, fHeight) => {
-                // Create a style element to set background on html
-                const style = document.createElement('style');
-                style.textContent = `
-                    html {
-                        background-image: url('${bgBase64}');
-                        background-size: 210mm 297mm;
-                        background-position: center top;
-                        background-repeat: no-repeat;
-                        background-attachment: fixed;
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
-                        margin: -${hHeight}mm -10mm -${fHeight}mm -10mm;
-                        padding: ${hHeight}mm 10mm ${fHeight}mm 10mm;
-                    }
-                `;
-                document.head.appendChild(style);
-            }, data.reportSettings.backgroundBase64, headerHeight, footerHeight);
-            console.log(`   - Background injected successfully`);
-        }
-
-        // --- LOAD HEADER AND FOOTER TEMPLATES ---
-        
-        // Read header and footer template files
-        const headerTemplatePath = path.resolve('./templates/report-header.html');
-        const footerTemplatePath = path.resolve('./templates/report-footer.html');
-        
-        const headerTemplateHtml = fs.readFileSync(headerTemplatePath, 'utf8');
-        const footerTemplateHtml = fs.readFileSync(footerTemplatePath, 'utf8');
-        
-        console.log(`📐 Layout Settings:`);
-        console.log(`   - Header Height (top margin): ${headerHeight}mm`);
-        console.log(`   - Footer Height: ${footerHeight}mm`);
-        console.log(`   - Patient box auto-positioned at bottom of header using flexbox`);
-        
-        // Convert doctor signature URLs to base64 (required for Puppeteer header/footer)
-        console.log(`🖼️  Converting doctor signatures to base64...`);
-        const doctorsWithBase64 = await Promise.all(
-            (data.doctors || []).map(async (doctor) => {
-                if (doctor.hasSignature && doctor.signatureUrl) {
-                    const base64Signature = await urlToBase64(doctor.signatureUrl);
-                    console.log(`   - ${doctor.name}: ${base64Signature ? 'OK (' + base64Signature.length + ' chars)' : 'FAILED'}`);
-                    return {
-                        ...doctor,
-                        signatureBase64: base64Signature
-                    };
-                }
-                return { ...doctor, signatureBase64: '' };
-            })
-        );
-        console.log(`   - Converted ${doctorsWithBase64.filter(d => d.signatureBase64).length} signatures`);
-        
-        // Prepare data for header/footer templates
-        const headerFooterData = {
-            patientName: data.patient?.fullName || '',
-            ageGender: `${data.patient?.ageDisplay || ''} / ${data.patient?.genderDisplay || ''}`,
-            referredBy: data.patient?.referringDoctor || '',
-            patientId: data.report?.billNumber || '',
-            reportId: data.report?.reportNumber || '',
-            reportDate: `${data.dates?.reportDate || ''} ${data.dates?.reportTime || ''}`,
-            regDate: data.dates?.collectionDate || '',
-            qrCodeData: data.report?.barcode || '',
-            // Pass the doctors array with base64 signatures
-            doctors: doctorsWithBase64,
-            // Pass background for full-page letterhead
-            backgroundBase64: data.reportSettings?.backgroundBase64 || ''
-        };
-        
-        // Compile header and footer templates with Handlebars
-        const headerTemplateCompiled = handlebars.compile(headerTemplateHtml);
-        const footerTemplateCompiled = handlebars.compile(footerTemplateHtml);
-        
-        const headerTemplate = headerTemplateCompiled(headerFooterData);
-        const footerTemplate = footerTemplateCompiled(headerFooterData);
 
         const pdfPath = `output/${templateName}.pdf`;
         
@@ -231,18 +172,19 @@ const generatePdf = async (templateName) => {
             fs.mkdirSync('./output');
         }
         
+        // CRITICAL: Ghost Table Strategy requires:
+        // - displayHeaderFooter: false (we handle header/footer in HTML)
+        // - margin: 0 on all sides (ghost spacers create the margins)
         await page.pdf({
             path: pdfPath,
             format: 'A4',
             printBackground: true,
-            displayHeaderFooter: true,
-            headerTemplate: headerTemplate,
-            footerTemplate: footerTemplate,
+            displayHeaderFooter: false,  // MUST be false for Ghost Table
             margin: {
-                top: `${headerHeight}mm`,     // User-defined: includes letterhead + patient box space
-                bottom: `${footerHeight}mm`,  // User-defined: footer space
-                left: '10mm',
-                right: '10mm'
+                top: '0mm',
+                bottom: '0mm',
+                left: '0mm',
+                right: '0mm'
             }
         });
 
@@ -259,7 +201,7 @@ const templateName = process.argv[2];
 
 if (!templateName) {
     console.log('Usage: node generate-pdf.js <template-name>');
-    console.log('Example: node generate-pdf.js bill1');
+    console.log('Example: node generate-pdf.js report1');
     
     // List available templates
     const templatesDir = path.resolve('./templates');
