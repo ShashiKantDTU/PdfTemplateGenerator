@@ -5,6 +5,21 @@ const path = require('path');
 const livereload = require('livereload');
 const connectLiveReload = require('connect-livereload');
 
+// Helper function to convert image to base64 data URI
+const imageToBase64 = (imagePath) => {
+    try {
+        if (fs.existsSync(imagePath)) {
+            const imageBuffer = fs.readFileSync(imagePath);
+            const ext = path.extname(imagePath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
+            return `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
+        }
+    } catch (e) {
+        console.warn(`Could not load image: ${imagePath}`);
+    }
+    return '';
+};
+
 // Register Handlebars helpers
 handlebars.registerHelper('eq', function(a, b) {
     return a === b;
@@ -51,7 +66,8 @@ handlebars.registerHelper('hasNonHtmlFields', function(fields, options) {
 // Create a live reload server
 const liveReloadServer = livereload.createServer({
     exts: ['html', 'json', 'css', 'js'],
-    delay: 100
+    delay: 100,
+    port: 35729
 });
 
 // Watch specific directories
@@ -60,18 +76,18 @@ liveReloadServer.watch([
     path.join(__dirname, 'data')
 ]);
 
-// Add server notification on file change
+// Refresh browser when server restarts
 liveReloadServer.server.once("connection", () => {
-    setTimeout(() => {
-        liveReloadServer.refresh("/");
-    }, 100);
+    console.log('🔄 LiveReload client connected');
 });
 
 const app = express();
 const port = 3000;
 
 // Inject the livereload script into the page
-app.use(connectLiveReload());
+app.use(connectLiveReload({
+    port: 35729
+}));
 
 // Serve static files from templates directory (for images, etc.)
 app.use('/templates', express.static(path.join(__dirname, 'templates'), {
@@ -198,21 +214,22 @@ app.get('/:templateName', (req, res) => {
                 reportDate: `${data.dates?.reportDate || ''} ${data.dates?.reportTime || ''}`,
                 regDate: data.dates?.collectionDate || '',
                 qrCodeData: data.report?.barcode || '',
-                doctor1Sign: data.doctorsSign?.doctor1Sign || '',
-                doctor2Sign: data.doctorsSign?.doctor2Sign || '',
-                doctor3Sign: data.doctorsSign?.doctor3Sign || '',
-                doctor4Sign: data.doctorsSign?.doctor4Sign || '',
-                doctor5Sign: data.doctorsSign?.doctor5Sign || '',
-                doctor1Name: data.doctorsSign?.doctor1Name || '',
-                doctor2Name: data.doctorsSign?.doctor2Name || '',
-                doctor3Name: data.doctorsSign?.doctor3Name || '',
-                doctor4Name: data.doctorsSign?.doctor4Name || '',
-                doctor5Name: data.doctorsSign?.doctor5Name || '',
-                doctor1Designation: data.doctorsSign?.doctor1Designation || '',
-                doctor2Designation: data.doctorsSign?.doctor2Designation || '',
-                doctor3Designation: data.doctorsSign?.doctor3Designation || '',
-                doctor4Designation: data.doctorsSign?.doctor4Designation || '',
-                doctor5Designation: data.doctorsSign?.doctor5Designation || ''
+                // Doctor signatures - convert to base64 for preview
+                doctor1Sign: imageToBase64(path.resolve('./templates/signatures/Doctor1.png')),
+                doctor2Sign: imageToBase64(path.resolve('./templates/signatures/Doctor2.png')),
+                doctor3Sign: imageToBase64(path.resolve('./templates/signatures/Doctor3.png')),
+                doctor4Sign: imageToBase64(path.resolve('./templates/signatures/Doctor4.png')),
+                doctor5Sign: imageToBase64(path.resolve('./templates/signatures/Doctor5.png')),
+                doctor1Name: data.doctors?.doctor1?.name || 'Doctor 1',
+                doctor2Name: data.doctors?.doctor2?.name || 'Doctor 2',
+                doctor3Name: data.doctors?.doctor3?.name || 'Doctor 3',
+                doctor4Name: data.doctors?.doctor4?.name || 'Doctor 4',
+                doctor5Name: data.doctors?.doctor5?.name || 'Doctor 5',
+                doctor1Designation: data.doctors?.doctor1?.designation || '',
+                doctor2Designation: data.doctors?.doctor2?.designation || '',
+                doctor3Designation: data.doctors?.doctor3?.designation || '',
+                doctor4Designation: data.doctors?.doctor4?.designation || '',
+                doctor5Designation: data.doctors?.doctor5?.designation || ''
             };
             
             const template = handlebars.compile(templateHtml);

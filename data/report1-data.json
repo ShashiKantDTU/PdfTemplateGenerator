@@ -1,31 +1,77 @@
 {
   "laboratory": {
-    "name": "Diagnostic Laboratory",
-    "address": "123 Medical Street, City, State - 123456",
-    "phone": "+91-1234567890",
-    "email": "lab@example.com",
-    "registrationNumber": "LAB/REG/2024/001",
-    "logo": null,
-    "website": "www.lab.com",
-    "timing": "8:00 AM - 8:00 PM"
+    "name": "My Lab",
+    "address": "",
+    "city": "",
+    "phone": "9354739451",
+    "email": "",
+    "website": "",
+    "ownerName": "Sunny Poddar",
+    "registrationNumber": ""
+  },
+  "doctors": [
+    {
+      "name": "Doc 1",
+      "qualification": "MBBS\nDOC1",
+      "registrationNumber": "",
+      "signatureUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/signatures/68eb95e19c4e065c413ecef8_doctor0_1764691128920.png",
+      "departments": [
+        "All Departments"
+      ],
+      "hasSignature": true
+    },
+    {
+      "name": "Doc 2",
+      "qualification": "BDMS",
+      "registrationNumber": "",
+      "signatureUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/signatures/68eb95e19c4e065c413ecef8_doctor1_1764691206686.png",
+      "departments": [
+        "All Departments"
+      ],
+      "hasSignature": true
+    },
+    {
+      "name": "Doc 3",
+      "qualification": "MD Pathology",
+      "registrationNumber": "",
+      "signatureUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/signatures/68eb95e19c4e065c413ecef8_doctor2_1764691248798.jpeg",
+      "departments": [
+        "All Departments"
+      ],
+      "hasSignature": true
+    }
+  ],
+  "reportSettings": {
+    "backgroundUrl": "https://pub-6a366405b3804c719b2771515c804bce.r2.dev/backgrounds/68eb95e19c4e065c413ecef8_1764690188157.jpeg",
+    "headerHeight": 120,
+    "footerHeight": 60,
+    "patientDesignLayout": "layout1",
+    "endingLine": "Kindly correlate clinically\n~~End of report~~",
+    "endingLineFontSize": 10,
+    "hasBackground": true
+  },
+  "billSettings": {
+    "includeGstInBill": false,
+    "gstNumber": "ABCDEFKJFD12",
+    "hasGst": false
   },
   "report": {
-    "reportNumber": "251101003-1",
-    "billNumber": "251101003",
+    "reportNumber": "251202002-1",
+    "billNumber": "251202002",
     "barcode": "",
     "status": "approved",
     "urgency": "normal",
     "isUrgent": false
   },
   "dates": {
-    "reportDate": "03 Nov 2025",
-    "collectionDate": "01 Nov 2025",
-    "reportedDate": "03 Nov 2025",
-    "reportTime": "02:43 pm",
+    "reportDate": "02 Dec 2025",
+    "collectionDate": "02 Dec 2025",
+    "reportedDate": "02 Dec 2025",
+    "reportTime": "10:44 pm",
     "_raw": {
-      "reportDate": "2025-11-03T09:13:57.965Z",
-      "collectionDate": "2025-11-01T08:55:46.217Z",
-      "reportedDate": "2025-11-03T09:13:57.965Z"
+      "reportDate": "2025-12-02T17:14:21.681Z",
+      "collectionDate": "2025-12-02T17:11:40.901Z",
+      "reportedDate": "2025-12-02T17:14:21.681Z"
     }
   },
   "patient": {
@@ -45,39 +91,11 @@
   },
   "tests": [
     {
-      "testCode": "WIDAL",
-      "testName": "WIDAL TEST (TUBE METHOD)",
-      "category": "Serology",
-      "status": "approved",
-      "reportNumber": "251101003-1",
-      "fields": [
-        {
-          "type": "field",
-          "name": "Test Results",
-          "value": "<table style=\"border-collapse: collapse; width: auto; border: 1px solid #ccc;\">\n<tbody>\n<tr style=\"background-color: #fff;\">\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">&nbsp;</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:20</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:40</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:80</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:160</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:320</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"O\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"H\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"AH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"BH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Result :</strong></p>\n<p><strong>INTERPRETATION: WEAKLY POSITIVE</strong></p>\n<p>Sera from normal individuals may show agglutination in dilutions up to 1:40 Agglutination titres of 1:40 or more are significant and rising titres on repitition of test after few days is more suggestive of enteric fever</p>\n<p><strong>LIMITATIONS OF WIDAL TEST</strong></p>\n<p>Numerous false positives due to cross reacting antibodies and heterospecific anamnestic responses and false low titres as a result of partial treatment are observed. This makes clinical correlation with lab findings mandatory</p>\n<p>Also Available. Rapid Continuous Monitoring Blood Culture on BACTEC (Becton &amp; Dickinson) for early and efficient detection of Salmonella in blood</p>",
-          "unit": "",
-          "referenceRange": "",
-          "isAbnormal": false,
-          "abnormalType": "normal",
-          "displayValue": "<table style=\"border-collapse: collapse; width: auto; border: 1px solid #ccc;\">\n<tbody>\n<tr style=\"background-color: #fff;\">\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">&nbsp;</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:20</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:40</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:80</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:160</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:320</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"O\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"H\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"AH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"BH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Result :</strong></p>\n<p><strong>INTERPRETATION: WEAKLY POSITIVE</strong></p>\n<p>Sera from normal individuals may show agglutination in dilutions up to 1:40 Agglutination titres of 1:40 or more are significant and rising titres on repitition of test after few days is more suggestive of enteric fever</p>\n<p><strong>LIMITATIONS OF WIDAL TEST</strong></p>\n<p>Numerous false positives due to cross reacting antibodies and heterospecific anamnestic responses and false low titres as a result of partial treatment are observed. This makes clinical correlation with lab findings mandatory</p>\n<p>Also Available. Rapid Continuous Monitoring Blood Culture on BACTEC (Becton &amp; Dickinson) for early and efficient detection of Salmonella in blood</p>",
-          "displayStatus": "normal",
-          "interpretation": "",
-          "remarks": ""
-        }
-      ],
-      "interpretation": {
-        "text": "",
-        "enteredBy": null,
-        "enteredAt": null
-      },
-      "hasAbnormalValues": false
-    },
-    {
       "testCode": "CBC",
       "testName": "Complete Blood Count (CBC)",
       "category": "Hematology",
       "status": "approved",
-      "reportNumber": "251101003-2",
+      "reportNumber": "251202002-1",
       "fields": [
         {
           "type": "field",
@@ -95,12 +113,12 @@
         {
           "type": "field",
           "name": "Total Leucocyte Count",
-          "value": "5000",
+          "value": "8000",
           "unit": "/cumm",
           "referenceRange": "4000 - 10000",
           "isAbnormal": false,
           "abnormalType": "normal",
-          "displayValue": "5000 /cumm",
+          "displayValue": "8000 /cumm",
           "displayStatus": "normal",
           "interpretation": "",
           "remarks": ""
@@ -112,12 +130,12 @@
             {
               "type": "field",
               "name": "Neutrophils",
-              "value": "80",
+              "value": "50",
               "unit": "%",
               "referenceRange": "40 - 80",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "80 %",
+              "displayValue": "50 %",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -125,12 +143,12 @@
             {
               "type": "field",
               "name": "Lymphocytes",
-              "value": "30",
+              "value": "35",
               "unit": "%",
               "referenceRange": "20 - 40",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "30 %",
+              "displayValue": "35 %",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -164,13 +182,13 @@
             {
               "type": "field",
               "name": "Basophils",
-              "value": "-20",
+              "value": "5",
               "unit": "%",
               "referenceRange": "0 - 1",
               "isAbnormal": true,
-              "abnormalType": "low",
-              "displayValue": "-20 %",
-              "displayStatus": "abnormal-low",
+              "abnormalType": "high",
+              "displayValue": "5 %",
+              "displayStatus": "abnormal-high",
               "interpretation": "",
               "remarks": ""
             }
@@ -197,12 +215,12 @@
             {
               "type": "field",
               "name": "Absolute Lymphocytes",
-              "value": "1500",
+              "value": "2800",
               "unit": "/cumm",
               "referenceRange": "1000 - 3000",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "1500 /cumm",
+              "displayValue": "2800 /cumm",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -210,12 +228,12 @@
             {
               "type": "field",
               "name": "Absolute Eosinophils",
-              "value": "250",
+              "value": "400",
               "unit": "/cumm",
               "referenceRange": "20 - 500",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "250 /cumm",
+              "displayValue": "400 /cumm",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -223,12 +241,12 @@
             {
               "type": "field",
               "name": "Absolute Monocytes",
-              "value": "250",
+              "value": "400",
               "unit": "/cumm",
               "referenceRange": "200 - 1000",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "250 /cumm",
+              "displayValue": "400 /cumm",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -243,12 +261,12 @@
             {
               "type": "field",
               "name": "RBC Count",
-              "value": "5",
+              "value": "4.9",
               "unit": "Million/cumm",
               "referenceRange": "4.5 - 5.5",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "5 Million/cumm",
+              "displayValue": "4.9 Million/cumm",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -256,12 +274,12 @@
             {
               "type": "field",
               "name": "MCV",
-              "value": "90",
+              "value": "100",
               "unit": "fL",
               "referenceRange": "81 - 101",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "90 fL",
+              "displayValue": "100 fL",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -269,12 +287,12 @@
             {
               "type": "field",
               "name": "MCH",
-              "value": "30",
+              "value": "29",
               "unit": "pg",
               "referenceRange": "27 - 32",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "30 pg",
+              "displayValue": "29 pg",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
@@ -308,18 +326,31 @@
             {
               "type": "field",
               "name": "RDW-CV",
-              "value": "15",
+              "value": "12",
               "unit": "%",
               "referenceRange": "11.6 - 14.0",
-              "isAbnormal": true,
-              "abnormalType": "high",
-              "displayValue": "15 %",
-              "displayStatus": "abnormal-high",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "12 %",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "RDW-SD",
+              "value": "40",
+              "unit": "fL",
+              "referenceRange": "39 - 46",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "40 fL",
+              "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
             }
           ],
-          "hasAbnormal": true
+          "hasAbnormal": false
         },
         {
           "type": "group",
@@ -328,18 +359,109 @@
             {
               "type": "field",
               "name": "Platelet Count",
-              "value": "200000",
+              "value": "90000",
               "unit": "/cumm",
               "referenceRange": "150000 - 410000",
+              "isAbnormal": true,
+              "abnormalType": "low",
+              "displayValue": "90000 /cumm",
+              "displayStatus": "abnormal-low",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PCT",
+              "value": "5",
+              "unit": "%",
+              "referenceRange": "",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "200000 /cumm",
+              "displayValue": "5 %",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "MPV",
+              "value": "5",
+              "unit": "fL",
+              "referenceRange": "7.5 - 11.5",
+              "isAbnormal": true,
+              "abnormalType": "low",
+              "displayValue": "5 fL",
+              "displayStatus": "abnormal-low",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PDW",
+              "value": "5",
+              "unit": "fL",
+              "referenceRange": "",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "5 fL",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PDW-s",
+              "value": "5",
+              "unit": "fL",
+              "referenceRange": "",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "5 fL",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PDW-c",
+              "value": "5",
+              "unit": "%",
+              "referenceRange": "",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "5 %",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PLCR",
+              "value": "5",
+              "unit": "%",
+              "referenceRange": "",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "5 %",
+              "displayStatus": "normal",
+              "interpretation": "",
+              "remarks": ""
+            },
+            {
+              "type": "field",
+              "name": "PLCC",
+              "value": "5",
+              "unit": "10^3/uL",
+              "referenceRange": "",
+              "isAbnormal": false,
+              "abnormalType": "normal",
+              "displayValue": "5 10^3/uL",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
             }
           ],
-          "hasAbnormal": false
+          "hasAbnormal": true
         }
       ],
       "interpretation": {
@@ -350,11 +472,39 @@
       "hasAbnormalValues": true
     },
     {
+      "testCode": "WIDAL",
+      "testName": "WIDAL TEST (TUBE METHOD)",
+      "category": "Serology",
+      "status": "approved",
+      "reportNumber": "251202002-2",
+      "fields": [
+        {
+          "type": "field",
+          "name": "Test Results",
+          "value": "<table style=\"border-collapse: collapse; width: auto; border: 1px solid #ccc;\">\n<tbody>\n<tr style=\"background-color: #fff;\">\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">&nbsp;</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:20</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:40</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:80</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:160</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:320</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"O\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">\n<p>+</p>\n</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"H\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"AH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"BH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Result : Positive</strong></p>\n<p><strong>INTERPRETATION: WEAKLY POSITIVE</strong></p>\n<p>Sera from normal individuals may show agglutination in dilutions up to 1:40 Agglutination titres of 1:40 or more are significant and rising titres on repitition of test after few days is more suggestive of enteric fever</p>\n<p><strong>LIMITATIONS OF WIDAL TEST</strong></p>\n<p>Numerous false positives due to cross reacting antibodies and heterospecific anamnestic responses and false low titres as a result of partial treatment are observed. This makes clinical correlation with lab findings mandatory</p>\n<p>Also Available. Rapid Continuous Monitoring Blood Culture on BACTEC (Becton &amp; Dickinson) for early and efficient detection of Salmonella in blood</p>",
+          "unit": "",
+          "referenceRange": "",
+          "isAbnormal": false,
+          "abnormalType": "normal",
+          "displayValue": "<table style=\"border-collapse: collapse; width: auto; border: 1px solid #ccc;\">\n<tbody>\n<tr style=\"background-color: #fff;\">\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">&nbsp;</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:20</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:40</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:80</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:160</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center; font-weight: bold;\">1:320</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"O\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">\n<p>+</p>\n</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"H\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">+</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"AH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n<tr>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; font-weight: bold;\">TYPHI \"BH\"</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n<td style=\"border: 1px solid #ccc; padding: 6px 12px; text-align: center;\">-</td>\n</tr>\n</tbody>\n</table>\n<p><strong>Result : Positive</strong></p>\n<p><strong>INTERPRETATION: WEAKLY POSITIVE</strong></p>\n<p>Sera from normal individuals may show agglutination in dilutions up to 1:40 Agglutination titres of 1:40 or more are significant and rising titres on repitition of test after few days is more suggestive of enteric fever</p>\n<p><strong>LIMITATIONS OF WIDAL TEST</strong></p>\n<p>Numerous false positives due to cross reacting antibodies and heterospecific anamnestic responses and false low titres as a result of partial treatment are observed. This makes clinical correlation with lab findings mandatory</p>\n<p>Also Available. Rapid Continuous Monitoring Blood Culture on BACTEC (Becton &amp; Dickinson) for early and efficient detection of Salmonella in blood</p>",
+          "displayStatus": "normal",
+          "interpretation": "",
+          "remarks": ""
+        }
+      ],
+      "interpretation": {
+        "text": "",
+        "enteredBy": null,
+        "enteredAt": null
+      },
+      "hasAbnormalValues": false
+    },
+    {
       "testCode": "URINE",
       "testName": "URINE ROUTINE",
       "category": "Urine Analysis",
       "status": "approved",
-      "reportNumber": "251101003-3",
+      "reportNumber": "251202002-3",
       "fields": [
         {
           "type": "group",
@@ -415,31 +565,31 @@
             {
               "type": "field",
               "name": "Specific Gravity",
-              "value": "01.009",
+              "value": "2",
               "unit": "",
               "referenceRange": "1.005 - 1.030",
-              "isAbnormal": false,
-              "abnormalType": "normal",
-              "displayValue": "01.009",
-              "displayStatus": "normal",
+              "isAbnormal": true,
+              "abnormalType": "high",
+              "displayValue": "2",
+              "displayStatus": "abnormal-high",
               "interpretation": "",
               "remarks": ""
             },
             {
               "type": "field",
               "name": "Quantity",
-              "value": "50ml",
+              "value": "10ml",
               "unit": "ml",
               "referenceRange": "",
               "isAbnormal": false,
               "abnormalType": "normal",
-              "displayValue": "50ml ml",
+              "displayValue": "10ml ml",
               "displayStatus": "normal",
               "interpretation": "",
               "remarks": ""
             }
           ],
-          "hasAbnormal": false
+          "hasAbnormal": true
         },
         {
           "type": "group",
@@ -630,7 +780,7 @@
         "enteredBy": null,
         "enteredAt": null
       },
-      "hasAbnormalValues": false
+      "hasAbnormalValues": true
     }
   ],
   "interpretation": null,

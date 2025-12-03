@@ -46,6 +46,21 @@ handlebars.registerHelper('hasNonHtmlFields', function(fields, options) {
     }
 });
 
+// Helper function to convert image to base64 data URI
+const imageToBase64 = (imagePath) => {
+    try {
+        if (fs.existsSync(imagePath)) {
+            const imageBuffer = fs.readFileSync(imagePath);
+            const ext = path.extname(imagePath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
+            return `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
+        }
+    } catch (e) {
+        console.warn(`Could not load image: ${imagePath}`);
+    }
+    return '';
+};
+
 const generatePdf = async (templateName) => {
     console.log(`Starting PDF generation for template: ${templateName}...`);
 
@@ -91,7 +106,18 @@ const generatePdf = async (templateName) => {
             reportId: data.report?.reportNumber || '',
             reportDate: `${data.dates?.reportDate || ''} ${data.dates?.reportTime || ''}`,
             regDate: data.dates?.collectionDate || '',
-            qrCodeData: data.report?.barcode || ''
+            qrCodeData: data.report?.barcode || '',
+            // Doctor signatures - convert to base64 for Puppeteer header/footer
+            doctor1Sign: imageToBase64(path.resolve('./templates/signatures/Doctor1.png')),
+            doctor2Sign: imageToBase64(path.resolve('./templates/signatures/Doctor2.png')),
+            doctor3Sign: imageToBase64(path.resolve('./templates/signatures/Doctor3.png')),
+            doctor4Sign: imageToBase64(path.resolve('./templates/signatures/Doctor4.png')),
+            doctor5Sign: imageToBase64(path.resolve('./templates/signatures/Doctor5.png')),
+            doctor1Name: data.doctors?.doctor1?.name || '',
+            doctor2Name: data.doctors?.doctor2?.name || '',
+            doctor3Name: data.doctors?.doctor3?.name || '',
+            doctor4Name: data.doctors?.doctor4?.name || '',
+            doctor5Name: data.doctors?.doctor5?.name || ''
         };
         
         // Compile header and footer templates with Handlebars
