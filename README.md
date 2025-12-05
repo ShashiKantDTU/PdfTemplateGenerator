@@ -93,360 +93,585 @@ Modify `generate-pdf.js` to adjust:
 
 
 ---
+# React-PDF Integration Guide for Medical Lab Reports
 
-# 📋 Complete Analysis: Medical Laboratory Report System
+## Overview
 
-## 🎯 What You're Building
-
-You're building a **Medical Laboratory Report PDF Generation System** for diagnostic labs. This system:
-1. Takes patient test data (JSON)
-2. Applies it to HTML templates using Handlebars.js
-3. Generates professional PDF reports using Puppeteer
+This guide explains how to integrate the React-PDF template into your main project to generate medical lab report PDFs. The template we built (Report1Template.js) takes structured JSON data and produces professional PDF reports.
 
 ---
 
-## 🏗️ Architecture Overview
+## 1. Required Dependencies
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        PDF OUTPUT                                │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ HEADER (report-header.html)                               │  │
-│  │   • Lab Background/Letterhead (92.5mm space)              │  │
-│  │   • Patient Info: Name, Age, Gender                       │  │
-│  │   • Report Info: Report ID, Date, Registration Date       │  │
-│  │   • QR Code (optional)                                    │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ BODY (report1.html)                                       │  │
-│  │   • Test Results in Tables                                │  │
-│  │   • Each test section with:                               │  │
-│  │     - Category Header (e.g., "HEMATOLOGY")                │  │
-│  │     - Test Name (e.g., "Complete Blood Count")            │  │
-│  │     - Results Table (Test | Result | Flag | Range | Unit) │  │
-│  │     - Interpretation (if any)                             │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ FOOTER (report-footer.html)                               │  │
-│  │   • Doctor Signatures (up to 5 doctors)                   │  │
-│  │   • Doctor Names & Qualifications                         │  │
-│  └───────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+Install these packages in your backend project:
+
+```bash
+npm install @react-pdf/renderer react react-pdf-html
 ```
 
 ---
 
-## 📊 Data Flow
+## 2. File Structure to Copy
+
+Copy these files/folders from the `PdfTemplateGenerator` project to your main project:
 
 ```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│  JSON Data       │────▶│  Handlebars      │────▶│  Puppeteer       │
-│  (report1-data)  │     │  Templates       │     │  PDF Generator   │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
-                                │
-                ┌───────────────┼───────────────┐
-                ▼               ▼               ▼
-        ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-        │report1.html │ │header.html  │ │footer.html  │
-        │(main body)  │ │(patient info)│ │(signatures) │
-        └─────────────┘ └─────────────┘ └─────────────┘
+your-backend/
+├── pdf-engine/
+│   ├── fonts/
+│   │   ├── Roboto-Regular.ttf
+│   │   ├── Roboto-Medium.ttf
+│   │   └── Roboto-Bold.ttf
+│   ├── templates/
+│   │   └── Report1Template.js
+│   └── generate.js
 ```
 
 ---
 
-## 📁 JSON Data Structure Explained
+## 3. Data Structure Required
 
-### 1. **Laboratory Information**
-```json
-"laboratory": {
-    "name": "My Lab",
-    "phone": "9354739451",
-    "ownerName": "Sunny Poddar"
+Your backend must produce a JSON object with this structure:
+
+### 3.1 Root Level Structure
+
+```javascript
+{
+  laboratory: { ... },      // Lab info
+  doctors: [ ... ],         // Array of doctors with signatures
+  reportSettings: { ... },  // PDF layout settings
+  report: { ... },          // Report metadata
+  dates: { ... },           // All dates
+  patient: { ... },         // Patient details
+  tests: [ ... ],           // Array of test results
 }
 ```
-This defines who is generating the report.
 
-### 2. **Doctor/Pathologist Signatures**
-```json
-"doctors": [
+### 3.2 Detailed Field Reference
+
+#### `laboratory` (Object)
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Laboratory name |
+| `phone` | string | Contact number |
+| `email` | string | Email address |
+| `address` | string | Full address |
+| `city` | string | City |
+| `website` | string | Website URL |
+| `ownerName` | string | Owner/Director name |
+| `registrationNumber` | string | Lab registration number |
+
+#### `doctors` (Array)
+Each doctor object:
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Doctor's name |
+| `qualification` | string | Qualifications (supports `\n` for line breaks) |
+| `registrationNumber` | string | Medical registration number |
+| `signatureUrl` | string | **URL to signature image** (PNG/JPEG) |
+| `departments` | array | Array of department names |
+| `hasSignature` | boolean | Whether signature exists |
+
+#### `reportSettings` (Object) - **Critical for Layout**
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `backgroundUrl` | string | - | **URL to letterhead background image** |
+| `headerHeight` | number | 80 | Height in mm reserved for header |
+| `footerHeight` | number | 60 | Height in mm reserved for footer |
+| `endingLine` | string | - | Text shown at end of report |
+| `endingLineFontSize` | number | 12 | Font size for ending line |
+| `hasBackground` | boolean | false | Whether background image exists |
+| `patientDesignLayout` | string | "layout1" | Patient info layout style |
+
+#### `report` (Object)
+| Field | Type | Description |
+|-------|------|-------------|
+| `reportNumber` | string | Unique report number |
+| `billNumber` | string | Associated bill number |
+| `barcode` | string | Barcode data (optional) |
+| `status` | string | Report status |
+| `urgency` | string | "normal" or "urgent" |
+| `isUrgent` | boolean | Urgency flag |
+
+#### `dates` (Object)
+| Field | Type | Description |
+|-------|------|-------------|
+| `reportDate` | string | Formatted report date (e.g., "02 Dec 2025") |
+| `collectionDate` | string | Sample collection date |
+| `reportedDate` | string | Date report was finalized |
+| `reportTime` | string | Time of report (e.g., "10:44 pm") |
+
+#### `patient` (Object)
+| Field | Type | Description |
+|-------|------|-------------|
+| `designation` | string | Mr/Mrs/Ms etc. |
+| `fullName` | string | Complete name with designation |
+| `firstName` | string | First name |
+| `lastName` | string | Last name |
+| `age` | number | Age value |
+| `ageType` | string | "years", "months", "days" |
+| `ageDisplay` | string | Formatted age (e.g., "22 years") |
+| `gender` | string | "male", "female", "other" |
+| `genderDisplay` | string | Formatted gender |
+| `phone` | string | Contact number |
+| `email` | string | Email |
+| `address` | string | Address |
+| `referringDoctor` | string | Referring doctor name |
+
+---
+
+## 4. Test Data Structure (Most Important)
+
+The `tests` array contains all test results. **Three types of fields are supported:**
+
+### 4.1 Numeric Fields (e.g., CBC)
+```javascript
+{
+  testCode: "CBC",
+  testName: "Complete Blood Count (CBC)",
+  category: "Hematology",
+  status: "approved",
+  fields: [
     {
-        "name": "Doc 1",
-        "qualification": "MBBS",
-        "signatureUrl": "https://...signature.png",
-        "departments": ["All Departments"]
+      type: "field",           // Simple field
+      name: "Haemoglobin",
+      value: "15",
+      unit: "g/dL",
+      referenceRange: "13 - 17",
+      isAbnormal: false,
+      abnormalType: "normal",  // "normal", "high", or "low"
+    },
+    // More fields...
+  ],
+  hasAbnormalValues: false
+}
+```
+
+### 4.2 Grouped Fields (e.g., DLC in CBC, Urine Routine)
+```javascript
+{
+  type: "group",
+  name: "Differential Leucocyte Count",
+  sub_fields: [
+    {
+      type: "field",
+      name: "Neutrophils",
+      value: "50",
+      unit: "%",
+      referenceRange: "40 - 80",
+      isAbnormal: false,
+      abnormalType: "normal",
+    },
+    // More sub-fields...
+  ],
+  hasAbnormal: false  // true if any sub_field is abnormal
+}
+```
+
+### 4.3 HTML Content Fields (e.g., WIDAL, Culture Reports)
+For tests with rich content from TinyMCE editor:
+```javascript
+{
+  testCode: "WIDAL",
+  testName: "WIDAL TEST (TUBE METHOD)",
+  category: "Serology",
+  fields: [
+    {
+      type: "field",
+      name: "Test Results",
+      value: "<table>...</table><p><strong>Result</strong></p>",  // HTML content
+      unit: "",
+      referenceRange: "",
+      isAbnormal: false,
     }
-]
-```
-Each doctor has a signature image that appears in the footer.
-
-### 3. **Patient Information**
-```json
-"patient": {
-    "designation": "Mr",
-    "fullName": "Mr Sunny Poddar",
-    "age": 22,
-    "ageDisplay": "22 years",
-    "gender": "male",
-    "referringDoctor": "Dr. Ramesh Kumar"
+  ]
 }
 ```
 
-### 4. **Tests Array - The Core**
-This is where the magic happens. Each test in the array follows this structure:
+**The template automatically detects HTML content** (checks if value contains `<table`, `<p>`, `<div>`, etc.) and renders it using `react-pdf-html`.
 
-```json
+---
+
+## 5. Backend Integration Code
+
+### 5.1 PDF Generation Service
+
+Create a service file in your backend:
+
+```javascript
+// services/pdfService.js
+const React = require('react');
+const ReactPDF = require('@react-pdf/renderer');
+const path = require('path');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
+
+// Import the template
+const Report1Template = require('../pdf-engine/templates/Report1Template');
+
+/**
+ * Convert image URL to base64 data URI
+ */
+async function imageUrlToBase64(url) {
+  if (!url) return null;
+  
+  return new Promise((resolve, reject) => {
+    const protocol = url.startsWith('https') ? https : http;
+    
+    protocol.get(url, (response) => {
+      if (response.statusCode === 301 || response.statusCode === 302) {
+        // Handle redirects
+        return imageUrlToBase64(response.headers.location).then(resolve).catch(reject);
+      }
+      
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        const contentType = response.headers['content-type'] || 'image/png';
+        const base64 = buffer.toString('base64');
+        resolve(`data:${contentType};base64,${base64}`);
+      });
+      response.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+/**
+ * Prepare report data by converting all image URLs to base64
+ */
+async function prepareReportData(reportData) {
+  const prepared = JSON.parse(JSON.stringify(reportData)); // Deep clone
+  
+  // Convert background image
+  if (prepared.reportSettings?.backgroundUrl) {
+    try {
+      prepared.reportSettings.backgroundBase64 = await imageUrlToBase64(
+        prepared.reportSettings.backgroundUrl
+      );
+      console.log('✅ Background image converted');
+    } catch (err) {
+      console.warn('⚠️ Failed to convert background:', err.message);
+    }
+  }
+  
+  // Convert doctor signatures
+  if (prepared.doctors?.length) {
+    for (let i = 0; i < prepared.doctors.length; i++) {
+      const doctor = prepared.doctors[i];
+      if (doctor.signatureUrl) {
+        try {
+          doctor.signatureBase64 = await imageUrlToBase64(doctor.signatureUrl);
+          console.log(`✅ Doctor ${i + 1} signature converted`);
+        } catch (err) {
+          console.warn(`⚠️ Failed to convert doctor ${i + 1} signature:`, err.message);
+        }
+      }
+    }
+  }
+  
+  return prepared;
+}
+
+/**
+ * Generate PDF buffer from report data
+ */
+async function generateReportPdf(reportData) {
+  // Prepare data (convert images to base64)
+  const preparedData = await prepareReportData(reportData);
+  
+  // Create React element
+  const element = React.createElement(Report1Template, { data: preparedData });
+  
+  // Render to buffer
+  const pdfBuffer = await ReactPDF.renderToBuffer(element);
+  
+  return pdfBuffer;
+}
+
+/**
+ * Generate PDF and save to file
+ */
+async function generateReportPdfToFile(reportData, outputPath) {
+  const preparedData = await prepareReportData(reportData);
+  const element = React.createElement(Report1Template, { data: preparedData });
+  
+  await ReactPDF.render(element, outputPath);
+  
+  return outputPath;
+}
+
+/**
+ * Generate PDF as stream (for HTTP response)
+ */
+async function generateReportPdfStream(reportData) {
+  const preparedData = await prepareReportData(reportData);
+  const element = React.createElement(Report1Template, { data: preparedData });
+  
+  return await ReactPDF.renderToStream(element);
+}
+
+module.exports = {
+  generateReportPdf,
+  generateReportPdfToFile,
+  generateReportPdfStream,
+  prepareReportData
+};
+```
+
+### 5.2 Express.js Route Example
+
+```javascript
+// routes/reports.js
+const express = require('express');
+const router = express.Router();
+const { generateReportPdf, generateReportPdfStream } = require('../services/pdfService');
+
+// Generate PDF and return as download
+router.get('/report/:reportId/pdf', async (req, res) => {
+  try {
+    // Fetch report data from your database
+    const reportData = await fetchReportData(req.params.reportId);
+    
+    // Generate PDF buffer
+    const pdfBuffer = await generateReportPdf(reportData);
+    
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="report-${reportData.report.reportNumber}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    // Send PDF
+    res.send(pdfBuffer);
+    
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+});
+
+// Generate PDF and stream (better for large files)
+router.get('/report/:reportId/pdf/stream', async (req, res) => {
+  try {
+    const reportData = await fetchReportData(req.params.reportId);
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="report-${reportData.report.reportNumber}.pdf"`);
+    
+    const pdfStream = await generateReportPdfStream(reportData);
+    pdfStream.pipe(res);
+    
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+});
+
+module.exports = router;
+```
+
+---
+
+## 6. Frontend Integration
+
+### 6.1 Download PDF Button
+
+```javascript
+// React component
+const DownloadReportButton = ({ reportId }) => {
+  const [loading, setLoading] = useState(false);
+  
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/report/${reportId}/pdf`);
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${reportId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download PDF');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <button onClick={handleDownload} disabled={loading}>
+      {loading ? 'Generating...' : 'Download PDF'}
+    </button>
+  );
+};
+```
+
+### 6.2 Preview PDF in Browser
+
+```javascript
+const PreviewReportButton = ({ reportId }) => {
+  const handlePreview = () => {
+    // Open PDF in new tab
+    window.open(`/api/report/${reportId}/pdf/stream`, '_blank');
+  };
+  
+  return (
+    <button onClick={handlePreview}>
+      Preview PDF
+    </button>
+  );
+};
+```
+
+---
+
+## 7. Key Configuration Points
+
+### 7.1 Header & Footer Heights
+
+These are **critical** for proper layout:
+
+```javascript
+reportSettings: {
+  headerHeight: 80,  // mm - Space reserved at top for letterhead
+  footerHeight: 60,  // mm - Space reserved at bottom for signatures
+}
+```
+
+- Measure your letterhead image to determine correct values
+- Header area: Lab logo, name, contact info
+- Footer area: Doctor signatures, qualifications
+
+### 7.2 Background Image
+
+The background image (letterhead) should be:
+- **Size**: A4 (210mm × 297mm) or matching aspect ratio
+- **Format**: JPEG or PNG
+- **Resolution**: 150-300 DPI for print quality
+- The template overlays content on top of this background
+
+### 7.3 Doctor Signatures
+
+- Signatures should be PNG with transparent background (preferred)
+- JPEG works but won't have transparency
+- Recommended size: 150-300px width
+
+---
+
+## 8. Abnormal Value Highlighting
+
+The template automatically highlights abnormal values:
+
+| Condition | Name Style | Value Style |
+|-----------|------------|-------------|
+| Normal | Regular, black | Regular, black |
+| High | **Bold**, black | **Bold**, red |
+| Low | **Bold**, black | **Bold**, blue |
+
+Set these in your field data:
+```javascript
 {
-    "testCode": "CBC",
-    "testName": "Complete Blood Count (CBC)",
-    "category": "Hematology",      // Department name
-    "status": "approved",
-    "fields": [...]                // The actual test results
+  isAbnormal: true,
+  abnormalType: "high",  // or "low"
 }
 ```
 
 ---
 
-## 🔬 Test Field Types
+## 9. HTML Content (TinyMCE) Support
 
-### Type 1: **Simple Field** (Direct Value)
-```json
-{
-    "type": "field",
-    "name": "Haemoglobin",
-    "value": "15",
-    "unit": "g/dL",
-    "referenceRange": "13 - 17",
-    "isAbnormal": false,
-    "abnormalType": "normal"
-}
-```
-**Renders as:**
-| Test Description | Result | Flag | Ref. Range | Unit |
-|-----------------|--------|------|------------|------|
-| Haemoglobin | 15 | | 13 - 17 | g/dL |
+For tests that use TinyMCE rich text editor (like WIDAL tables):
+
+1. Store HTML string in the `value` field
+2. Template auto-detects HTML content
+3. Tables, paragraphs, bold text, etc. are rendered
+
+**Supported HTML elements:**
+- `<table>`, `<tr>`, `<td>`, `<th>`
+- `<p>`, `<strong>`, `<em>`
+- `<ul>`, `<ol>`, `<li>`
+- Inline styles (padding, border, text-align, font-weight)
 
 ---
 
-### Type 2: **Group Field** (Nested Results)
-Used for related tests that should be grouped together:
-```json
-{
-    "type": "group",
-    "name": "Differential Leucocyte Count",
-    "sub_fields": [
-        {"type": "field", "name": "Neutrophils", "value": "50", ...},
-        {"type": "field", "name": "Lymphocytes", "value": "35", ...}
-    ]
-}
-```
-**Renders as:**
-| Test Description | Result | Flag | Ref. Range | Unit |
-|-----------------|--------|------|------------|------|
-| **Differential Leucocyte Count** | | | | |
-| &nbsp;&nbsp;Neutrophils | 50 | | 40 - 80 | % |
-| &nbsp;&nbsp;Lymphocytes | 35 | | 20 - 40 | % |
-
----
-
-### Type 3: **HTML Rich Content** (Complex Tests)
-For tests like **Widal Test** that need special formatting:
-```json
-{
-    "type": "field",
-    "name": "Test Results",
-    "value": "<table>...</table><p>Interpretation...</p>",
-    "displayValue": "<table>...</table>..."
-}
-```
-**Renders as:** A custom HTML table with plus/minus indicators
-
----
-
-## 🚨 Abnormal Value Handling
-
-The system automatically flags abnormal values:
-
-```json
-{
-    "name": "Platelet Count",
-    "value": "90000",
-    "referenceRange": "150000 - 410000",
-    "isAbnormal": true,
-    "abnormalType": "low"    // Can be: "low", "high", or "normal"
-}
-```
-
-**Visual Output:**
-- **High values (H)**: Red text, bold, shows "H" in Flag column
-- **Low values (L)**: Blue text, bold, shows "L" in Flag column
-- **Normal values**: Black text, no flag
-
----
-
-## 🎨 How the Report Looks
-
-### Visual Structure of Final PDF:
+## 10. Complete Data Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   [LAB LETTERHEAD/BACKGROUND]               │
-│                   (92.5mm reserved space)                   │
-├─────────────────────────────────────────────────────────────┤
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ Name: Mr Sunny Poddar     │ Report ID: 251202002-1      │ │
-│ │ Age/Gender: 22 years/Male │ Report Date: 02 Dec 2025    │ │
-│ │ Referred By: Dr. Ramesh   │ Reg Date: 02 Dec 2025       │ │
-│ │ Patient ID: 251202002     │                       [QR]  │ │
-│ └─────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────┤
-│                      HEMATOLOGY                             │
-│              COMPLETE BLOOD COUNT (CBC)                     │
-│ ┌─────────────┬────────┬──────┬──────────────┬───────────┐ │
-│ │Test         │Result  │Flag  │Ref. Range    │Unit       │ │
-│ ├─────────────┼────────┼──────┼──────────────┼───────────┤ │
-│ │Haemoglobin  │15      │      │13 - 17       │g/dL       │ │
-│ │TLC          │8000    │      │4000 - 10000  │/cumm      │ │
-│ │Diff. Count  │        │      │              │           │ │
-│ │  Neutrophils│50      │      │40 - 80       │%          │ │
-│ │  Basophils  │5 (RED) │H     │0 - 1         │%          │ │
-│ │Platelets    │        │      │              │           │ │
-│ │  Count      │90000   │L     │150000-410000 │/cumm      │ │
-│ │             │(BLUE)  │      │              │           │ │
-│ └─────────────┴────────┴──────┴──────────────┴───────────┘ │
-├─────────────────────────────────────────────────────────────┤
-│                       SEROLOGY                              │
-│               WIDAL TEST (TUBE METHOD)                      │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │        │1:20 │1:40 │1:80 │1:160│1:320│                  │ │
-│ │TYPHI O │  +  │  +  │  +  │  +  │  -  │                  │ │
-│ │TYPHI H │  +  │  +  │  +  │  -  │  -  │                  │ │
-│ │Result: Positive | INTERPRETATION: WEAKLY POSITIVE       │ │
-│ └─────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────┤
-│ [Sign1]      [Sign2]      [Sign3]                          │
-│ Doc 1        Doc 2        Doc 3                            │
-│ MBBS         BDMS         MD Pathology                     │
+│                        FRONTEND                              │
+│  (React/Vue/Angular)                                        │
+│                                                             │
+│  1. User creates/edits test results                         │
+│  2. TinyMCE for rich content (WIDAL tables)                 │
+│  3. Numeric inputs for CBC, etc.                            │
+│  4. Click "Generate PDF" button                             │
+└─────────────────────┬───────────────────────────────────────┘
+                      │ API Request
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        BACKEND                               │
+│  (Node.js/Express)                                          │
+│                                                             │
+│  1. Fetch report data from database                         │
+│  2. Structure data as per schema above                      │
+│  3. Call generateReportPdf(reportData)                      │
+│     ├── Convert image URLs to base64                        │
+│     ├── Create React element with Report1Template           │
+│     └── Render to PDF buffer/stream                         │
+│  4. Return PDF to frontend                                  │
+└─────────────────────┬───────────────────────────────────────┘
+                      │ PDF Response
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        FRONTEND                              │
+│                                                             │
+│  - Download PDF file                                        │
+│  - Or preview in browser                                    │
+│  - Or send to printer                                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚙️ Generation Logic (generate-pdf.js)
+## 11. Troubleshooting
 
-### Step-by-Step Process:
-
-1. **Load Data & Template**
-   ```javascript
-   const data = JSON.parse(fs.readFileSync('./data/report1-data.json'));
-   const templateHtml = fs.readFileSync('./templates/report1.html');
-   ```
-
-2. **Compile with Handlebars**
-   ```javascript
-   const template = handlebars.compile(templateHtml);
-   const finalHtml = template(data);
-   ```
-
-3. **Launch Puppeteer Browser**
-   ```javascript
-   const browser = await puppeteer.launch();
-   const page = await browser.newPage();
-   await page.setContent(finalHtml);
-   ```
-
-4. **Generate PDF with Header/Footer**
-   ```javascript
-   await page.pdf({
-       path: 'output/report1.pdf',
-       format: 'A4',
-       headerTemplate: headerTemplate,    // Patient info box
-       footerTemplate: footerTemplate,    // Doctor signatures
-       margin: {
-           top: '92.5mm',     // Space for letterhead
-           bottom: '140px'    // Space for footer
-       }
-   });
-   ```
+| Issue | Solution |
+|-------|----------|
+| Images not showing | Ensure URLs are converted to base64 before rendering |
+| Layout broken | Check `headerHeight` and `footerHeight` values match your letterhead |
+| Fonts not loading | Ensure `.ttf` files are in correct path and Font.register is called |
+| HTML tables misaligned | Check if TinyMCE HTML has proper inline styles |
+| PDF blank | Check console for React-PDF errors, ensure data structure is correct |
 
 ---
 
-## 🧩 Template Logic (Handlebars)
+## 12. Performance Tips
 
-### Key Helpers Used:
-
-| Helper | Purpose | Example |
-|--------|---------|---------|
-| `{{#each tests}}` | Loop through all tests | Iterate test array |
-| `{{#if condition}}` | Conditional rendering | Show if value exists |
-| `{{eq a b}}` | Equality check | `{{#if (eq type 'field')}}` |
-| `{{contains str substr}}` | String contains | `{{#if (contains value '<table')}}` |
-| `{{{htmlContent}}}` | Raw HTML output | Render Widal tables |
-
-### Rendering Flow in Template:
-
-```
-For each test:
-├── Show Category Header (e.g., "HEMATOLOGY")
-├── Show Test Name (e.g., "COMPLETE BLOOD COUNT")
-├── Check inputType:
-│   ├── If 'text' or 'select': Render raw content
-│   └── If 'numeric' (default):
-│       ├── First render any HTML content outside table
-│       └── Then render numeric fields in table:
-│           For each field:
-│           ├── If type='field': Render as table row
-│           └── If type='group': Render group header + sub_fields
-└── Show Interpretation (if any)
-```
+1. **Cache base64 images** - Don't convert on every request
+2. **Use streams** for large PDFs - `renderToStream()` instead of `renderToBuffer()`
+3. **Queue PDF generation** - For high traffic, use job queue (Bull, etc.)
+4. **Pre-generate PDFs** - Generate when report is approved, store and serve
 
 ---
 
-## 🎯 Key Features Summary
+## Summary
 
-| Feature | Implementation |
-|---------|---------------|
-| **Multi-test reports** | `{{#each tests}}` loops through all tests |
-| **Hierarchical data** | Groups with `sub_fields` arrays (3+ levels) |
-| **Abnormal highlighting** | CSS classes `.abnormal-high`, `.abnormal-low` |
-| **Rich HTML content** | Widal tables rendered with `{{{displayValue}}}` |
-| **Doctor signatures** | Base64 encoded images in footer |
-| **Professional layout** | A4 format with proper margins |
-| **Page breaks** | CSS `page-break-inside: avoid` for sections |
+To integrate React-PDF into your project:
 
----
+1. ✅ Install dependencies: `@react-pdf/renderer`, `react`, `react-pdf-html`
+2. ✅ Copy template files and fonts
+3. ✅ Structure your backend data as per the schema
+4. ✅ Convert image URLs to base64 before rendering
+5. ✅ Use `renderToBuffer()` or `renderToStream()` for PDF output
+6. ✅ Return PDF via API endpoint
+7. ✅ Frontend downloads or previews the PDF
 
-## 📝 Report Types Supported
-
-Based on `inputType`:
-
-1. **Numeric Tests** (Default) - CBC, Liver Function, etc.
-   - Shows standard 5-column table
-
-2. **Text Tests** - Histopathology reports
-   - Shows free-form text/HTML content
-
-3. **Select Tests** - Widal, Dengue markers
-   - Shows custom HTML tables with +/- results
-
----
-
-## 🔄 Workflow for Creating a Report
-
-```
-1. Collect Patient Data
-         ↓
-2. Run Lab Tests
-         ↓
-3. Enter Results in System (creates JSON)
-         ↓
-4. Run: node generate-pdf.js report1
-         ↓
-5. System:
-   a. Reads report1-data.json
-   b. Applies to report1.html template
-   c. Compiles header/footer templates
-   d. Puppeteer renders to PDF
-         ↓
-6. Output: output/report1.pdf
-```
+The template handles all the complex rendering - you just need to pass properly structured data!

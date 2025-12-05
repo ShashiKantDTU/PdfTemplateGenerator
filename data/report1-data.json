@@ -67,7 +67,7 @@
     "footerHeight": 60,
     "patientDesignLayout": "layout1",
     "endingLine": "Kindly correlate clinically\n~~End of report~~",
-    "endingLineFontSize": 16,
+    "endingLineFontSize": 10,
     "hasBackground": true
   },
   "billSettings": {
